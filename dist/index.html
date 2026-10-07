@@ -429,14 +429,246 @@ h1,h2,h3,p{overflow-wrap:break-word}
 .cv-count{padding:0 10px 0 6px}
 }
 </style>
+<style>
+/* Calendar */
+.cal-view{margin-top:-8px}
+.cal-shell{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.cal-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px}
+.cal-head .cv-back{margin:0}
+.cal-head .eyebrow{margin:0 0 4px}
+.cal-head h1{margin:0;font-size:44px;line-height:1.02;font-weight:400}
+.cal-add{display:inline-flex;align-items:center;gap:8px;min-height:50px;padding:0 22px;border:0;border-radius:999px;background:linear-gradient(180deg,#ffe0ad,#f6c47b);color:#101010;font-size:21px;white-space:nowrap}
+.cal-add svg,.cal-nav svg,.cal-remove svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.cal-filters{display:flex;flex-wrap:wrap;gap:8px}
+.cal-filter{max-width:100%;border:1px solid rgba(255,220,160,.38);background:rgba(12,28,44,.72);color:#dce5ee;border-radius:999px;padding:9px 14px;font-size:17px;line-height:1.15;white-space:nowrap}
+.cal-filter[aria-pressed="true"]{border-color:transparent;background:linear-gradient(180deg,#ffe0ad,#f6c47b);color:#111}
+.cal-card{min-width:0;padding:18px;border:1px solid rgba(255,220,160,.38);border-radius:24px;background:linear-gradient(180deg,rgba(9,24,38,.92),rgba(5,14,23,.95));box-shadow:0 18px 48px rgba(0,0,0,.42)}
+.cal-month{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.cal-month h2{flex:1 1 0;min-width:0;margin:0;font-size:30px;font-weight:400;line-height:1.1;text-align:center}
+.cal-nav{flex:0 0 auto;width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(255,220,160,.4);border-radius:50%;background:rgba(12,28,44,.72)}
+.cal-dow,.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cal-grid{grid-auto-rows:1fr}
+.cal-dow span{padding-bottom:8px;text-align:center;font-family:Inter,system-ui,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#aeb8c4}
+.cal-day{min-width:0;min-height:86px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:6px 5px;border:1px solid rgba(156,179,197,.18);border-radius:14px;background:rgba(20,40,59,.45);font:inherit;color:inherit;text-align:left}
+.cal-day:hover{border-color:rgba(255,220,160,.6)}
+.cal-day.has-exam{border-color:rgba(255,125,98,.6)}
+.cal-day[aria-pressed="true"]{border-color:#ffe0ad;background:rgba(255,210,140,.14);box-shadow:inset 0 0 0 1px #ffe0ad}
+.cal-num{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-size:20px;line-height:1}
+.cal-day.today .cal-num{background:#ffe0ad;color:#111}
+.cal-chip,.cal-tag{font-family:Inter,system-ui,sans-serif;font-weight:600}
+.cal-chip{max-width:100%;padding:2px 5px;border-radius:6px;font-size:10.5px;line-height:1.3;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-more{padding-left:2px;font-family:Inter,system-ui,sans-serif;font-size:11px;color:#aeb8c4}
+.cal-dots{display:none;gap:3px}
+.cal-dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%}
+.cal-chip.exam,.cal-tag.exam{background:rgba(255,125,98,.22);color:#ffb9aa}
+.cal-chip.deadline,.cal-tag.deadline{background:rgba(255,214,150,.2);color:#ffe0ad}
+.cal-chip.study,.cal-tag.study{background:rgba(124,196,255,.2);color:#b9deff}
+.cal-chip.other,.cal-tag.other{background:rgba(200,210,222,.18);color:#d8e0e8}
+.cal-dot.exam{background:#ff7d62}
+.cal-dot.deadline{background:#ffd696}
+.cal-dot.study{background:#7cc4ff}
+.cal-dot.other{background:#c8d2de}
+.cal-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:14px}
+.cal-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-family:Inter,system-ui,sans-serif;font-size:13px;color:#c3ccd6}
+.cal-legend span{display:inline-flex;align-items:center;gap:6px}
+.cal-today{margin-left:auto;border:1px solid rgba(190,207,222,.38);border-radius:999px;background:rgba(11,27,42,.72);padding:7px 15px;font-size:16px}
+.cal-agenda{min-width:0}
+.cal-agenda[hidden]{display:none}
+.cal-section-title{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin:4px 0 12px}
+.cal-section-title h2{margin:0;font-size:32px;font-weight:400;line-height:1.1}
+.cal-section-title span{font-family:Inter,system-ui,sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#b5bec8}
+.cal-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.cal-event{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 14px;border:1px solid rgba(156,179,197,.25);border-radius:18px;background:rgba(20,40,59,.74)}
+.cal-event.moved{border-color:rgba(255,220,160,.55)}
+.cal-event.flash{animation:cal-flash 1.8s ease-out}
+.cal-date{display:grid;justify-items:center;gap:2px;padding:7px 0;border:1px solid rgba(255,220,160,.3);border-radius:12px;background:rgba(255,224,173,.1)}
+.cal-date b{font-size:27px;font-weight:400;line-height:1}
+.cal-date span{font-family:Inter,system-ui,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c2cad2}
+.cal-info{min-width:0}
+.cal-info h3{margin:0 0 5px;font-size:23px;font-weight:400;line-height:1.15;overflow-wrap:anywhere}
+.cal-info p{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:0;font-size:17px;line-height:1.25;color:#c8ced5}
+.cal-tag{flex:0 0 auto;padding:3px 9px;border-radius:999px;font-size:12px;line-height:1.3}
+.cal-info .cal-note{margin-top:7px;font-family:Inter,system-ui,sans-serif;font-size:13px;line-height:1.35;color:var(--gold2)}
+.cal-note i{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:#0b2033 var(--robot) center/88% no-repeat}
+.cal-note span{flex:1 1 0;min-width:0}
+.cal-remove{width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(200,210,222,.35);border-radius:50%;background:transparent;color:#c8d2de}
+.cal-remove svg{width:16px;height:16px}
+.cal-empty{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border:1px dashed rgba(156,179,197,.35);border-radius:18px;font-size:18px;color:#c3ccd6}
+.cal-empty button{border:1px solid var(--line);border-radius:999px;background:transparent;padding:8px 16px;font-size:17px}
+.cal-view button:focus-visible,.sheet button:focus-visible,.notif button:focus-visible,.update-link:focus-visible,.recap button:focus-visible{outline:2px solid #ffe2b0;outline-offset:3px}
+@keyframes cal-flash{0%,45%{border-color:#ffe0ad;box-shadow:0 0 0 3px rgba(255,214,150,.4),0 0 26px rgba(255,200,120,.5)}100%{box-shadow:0 0 0 0 rgba(255,214,150,0)}}
+/* Add-event sheet */
+.sheet{width:min(520px,calc(100vw - 28px));max-width:none;max-height:calc(100vh - 28px);padding:0;overflow:auto;border:1px solid var(--line);border-radius:26px;background:linear-gradient(180deg,#0e2438,#06111b);color:var(--cream);font-family:"Times New Roman",Georgia,serif;box-shadow:0 30px 90px rgba(0,0,0,.7)}
+.sheet::backdrop{background:rgba(3,8,13,.68);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.sheet form{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:22px}
+.sheet h2{margin:0;font-size:32px;font-weight:400;line-height:1.1}
+.field{display:grid;gap:7px;min-width:0;margin:0;padding:0;border:0}
+.field>span,.field>legend{padding:0;font-family:Inter,system-ui,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#c2cad2}
+.field>legend{margin-bottom:7px}
+.field input:not([type="radio"]),.field select{width:100%;min-width:0;min-height:50px;padding:10px 14px;border:1px solid rgba(255,220,160,.38);border-radius:14px;background:rgba(2,9,15,.68);color:var(--cream);color-scheme:dark;font:inherit;font-size:19px}
+.field input:focus-visible,.field select:focus-visible{outline:0;border-color:#ffe0ad;box-shadow:0 0 0 3px rgba(255,214,150,.16)}
+.field-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.seg label{position:relative;min-width:0}
+.seg input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.seg span{display:grid;place-items:center;min-height:46px;padding:6px 8px;border:1px solid rgba(255,220,160,.38);border-radius:14px;background:rgba(12,28,44,.72);font-size:18px;text-align:center}
+.seg input:checked+span{border-color:transparent;background:linear-gradient(180deg,#ffe0ad,#f6c47b);color:#111}
+.seg input:focus-visible+span{outline:2px solid #ffe2b0;outline-offset:3px}
+.sheet-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+.sheet-actions button{min-height:50px;padding:0 22px;border-radius:999px;font-size:20px}
+.sheet-cancel{border:1px solid var(--line);background:transparent}
+.sheet-save{border:0;background:linear-gradient(180deg,#ffe0ad,#f6c47b);color:#101010}
+/* Class-update notification */
+.update-link{display:inline-flex;align-items:center;gap:.32em;padding:0;border:0;background:none;font:inherit;color:var(--gold2);text-decoration:underline;text-decoration-color:rgba(255,220,160,.55);text-underline-offset:.18em}
+.update-dot{flex:0 0 auto;width:.34em;height:.34em;border-radius:50%;background:#ff7d62;box-shadow:0 0 0 .14em rgba(255,125,98,.28)}
+.notif{position:absolute;inset:0;z-index:30;display:flex;justify-content:center;align-items:flex-start;padding:168px 28px 40px}
+.notif[hidden]{display:none}
+.notif-backdrop{position:absolute;inset:0;background:rgba(4,10,16,.52);-webkit-backdrop-filter:blur(18px) saturate(1.15);backdrop-filter:blur(18px) saturate(1.15);animation:notif-fade .22s ease-out}
+.notif-stack{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;width:min(100%,560px);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;animation:notif-in .3s cubic-bezier(.2,.9,.3,1.15)}
+.notif-card{padding:16px 18px 18px;border:1px solid rgba(255,255,255,.16);border-radius:28px;background:rgba(30,40,52,.86);box-shadow:0 26px 70px rgba(0,0,0,.55)}
+.notif-top{display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#c6ced8}
+.notif-icon{flex:0 0 auto;width:26px;height:26px;border-radius:7px;background:#0b2033 var(--robot) center/86% no-repeat}
+.notif-top time{margin-left:auto;letter-spacing:0;text-transform:none}
+.notif-say{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:16px}
+.notif-mascot{height:98px;background:var(--robot) center/contain no-repeat;filter:drop-shadow(0 0 16px rgba(255,198,116,.5))}
+.notif-bubble{position:relative;padding:14px 16px;border-radius:20px;background:#fff3dc;color:#16202a}
+.notif-bubble:before{content:"";position:absolute;left:-9px;top:50%;width:20px;height:20px;margin-top:-10px;border-radius:4px;background:#fff3dc;transform:rotate(45deg)}
+.notif-bubble h2{position:relative;margin:0 0 5px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7a5a2c}
+.notif-bubble p{position:relative;margin:0;font-size:19px;font-weight:500;line-height:1.35}
+.notif-change{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:14px;padding:11px 14px;border-radius:14px;background:rgba(255,255,255,.07);font-size:15px;line-height:1.3;color:#dfe5ec}
+.notif-change b{font-weight:600;color:#fff}
+.notif-change s{color:#aab4bf}
+.notif-change .to{font-weight:700;color:var(--gold2)}
+.notif-actions{display:grid;overflow:hidden;border:1px solid rgba(255,255,255,.16);border-radius:22px;background:rgba(30,40,52,.86)}
+.notif-actions button{min-height:54px;padding:10px 18px;border:0;background:transparent;font-family:inherit;font-size:18px;color:#fff;text-align:left}
+.notif-actions button:hover{background:rgba(255,255,255,.07)}
+.notif-actions button+button{border-top:1px solid rgba(255,255,255,.12)}
+.notif-actions .strong{font-weight:700;color:var(--gold2)}
+@keyframes notif-fade{from{opacity:0}}
+@keyframes notif-in{from{opacity:0;transform:translateY(-14px) scale(.92)}}
+/* Recap slideshow */
+.recap{--h:min(calc(100vh - 32px),900px);width:min(100vw,calc(var(--h)*9/16));height:var(--h);max-width:none;max-height:none;padding:0;overflow:hidden;border:0;border-radius:28px;background:#05080d;color:#fff;box-shadow:0 30px 100px rgba(0,0,0,.75)}
+@supports(height:100dvh){.recap{--h:min(calc(100dvh - 32px),900px)}}
+.recap::backdrop{background:rgba(2,5,9,.84);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.recap-stage{position:relative;width:100%;height:100%;container-type:inline-size;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.recap-track{display:flex;width:100%;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior:contain;scrollbar-width:none;outline:0;cursor:pointer}
+.recap-track::-webkit-scrollbar{display:none}
+.recap-slide{position:relative;flex:0 0 100%;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:86px 26px 134px;scroll-snap-align:start;scroll-snap-stop:always;background:#0a1826 center/cover no-repeat;text-align:center}
+.recap-slide:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,8,14,.78),rgba(3,8,14,.46) 30%,rgba(3,8,14,.56) 62%,rgba(3,8,14,.94))}
+.recap-slide.end:before{background:rgba(3,8,14,.8)}
+.recap-slide>*{position:relative;max-width:100%}
+.recap-kicker{padding:5px 11px;border-radius:8px;background:#ffe0ad;color:#111;font-size:12px;font-weight:800;line-height:1.3;letter-spacing:.08em;text-transform:uppercase}
+.recap-slide h2{margin:0;font-size:30px;font-size:clamp(24px,7.2cqw,38px);font-weight:800;line-height:1.14;letter-spacing:-.01em;text-wrap:balance;text-shadow:0 2px 0 rgba(0,0,0,.55),0 4px 18px rgba(0,0,0,.75)}
+.recap-slide mark{padding:0 .16em;border-radius:.2em;background:#ffe0ad;color:#111;text-shadow:none;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.recap-text{margin:0;padding:12px 15px;border-radius:14px;background:rgba(0,0,0,.64);font-size:17px;font-size:clamp(15px,4.3cqw,20px);font-weight:600;line-height:1.4;text-wrap:pretty}
+.recap-steps{display:grid;gap:8px;width:100%;margin:0;padding:0;list-style:none;counter-reset:step}
+.recap-steps li{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.64);font-size:17px;font-size:clamp(15px,4.4cqw,20px);font-weight:700;line-height:1.25;text-align:left;counter-increment:step}
+.recap-steps li:before{content:counter(step);flex:0 0 auto;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:#ffe0ad;color:#111;font-size:15px;font-weight:800}
+.recap-mascot{width:132px;height:120px;background:var(--robot) center/contain no-repeat;filter:drop-shadow(0 0 22px rgba(255,198,116,.6))}
+.recap-cta{display:grid;gap:10px;width:min(100%,300px)}
+.recap-cta button{min-height:50px;padding:8px 18px;border-radius:999px;font-family:inherit;font-size:17px;font-weight:700}
+.recap-cta .go{border:0;background:linear-gradient(180deg,#ffe0ad,#f6c47b);color:#111}
+.recap-cta .alt{border:1.5px solid rgba(255,255,255,.75);background:rgba(0,0,0,.4);color:#fff}
+.recap-top{position:absolute;z-index:2;top:16px;left:16px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;pointer-events:none}
+.recap-top>*{pointer-events:auto}
+.recap-count{padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);font-size:14px;font-weight:700}
+.recap-round{flex:0 0 auto;width:46px;height:46px;display:grid;place-items:center;border:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff}
+.recap-round svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.recap-round[aria-pressed="true"] svg{fill:currentColor}
+.recap-like[aria-pressed="true"]{color:#ff5d6c}
+.recap-save[aria-pressed="true"]{color:#ffd696}
+.recap-arrow{position:absolute;z-index:2;top:50%;margin-top:-23px}
+.recap-arrow.prev{left:8px}
+.recap-arrow.next{right:8px}
+.recap-arrow:disabled{visibility:hidden}
+.recap-dots{position:absolute;z-index:2;left:0;right:0;bottom:84px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.recap-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4)}
+.recap-dots i.on{background:#fff}
+.recap-foot{position:absolute;z-index:2;left:16px;right:12px;bottom:18px;display:flex;align-items:center;gap:10px;pointer-events:none}
+.recap-foot>*{pointer-events:auto}
+.recap-avatar{flex:0 0 auto;width:44px;height:44px;border:2px solid #ffe0ad;border-radius:50%;background:#0b2033 var(--robot) center/82% no-repeat}
+.recap-who{flex:1 1 0;min-width:0;display:grid;gap:1px;text-align:left;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.recap-who b{font-size:15px;line-height:1.25}
+.recap-who span{font-size:13px;line-height:1.3;opacity:.9}
+@media(hover:none){.recap-arrow{display:none}}
+@media(prefers-reduced-motion:reduce){.notif-stack,.notif-backdrop,.cal-event.flash{animation:none}}
+@media(max-width:690px){
+.cal-day{min-height:58px;align-items:center;gap:5px;padding:6px 2px}
+.cal-chip,.cal-more{display:none}
+.cal-dots{display:flex}
+}
+@media(max-width:560px){
+.cal-shell{gap:14px}
+.cal-head{gap:12px}
+.cal-head .cv-back{width:46px;height:46px}
+.cal-head h1{font-size:34px}
+.cal-add{width:46px;min-height:46px;padding:0;justify-content:center}
+.cal-add span{display:none}
+.cal-filter{padding:8px 13px;font-size:16px}
+.cal-card{padding:14px 12px;border-radius:20px}
+.cal-month h2{font-size:clamp(19px,6vw,26px)}
+.cal-nav{width:40px;height:40px}
+.cal-dow,.cal-grid{gap:4px}
+.cal-dow span{font-size:10px;letter-spacing:.08em}
+.cal-day{min-height:50px;border-radius:11px}
+.cal-num{width:26px;height:26px;font-size:17px}
+.cal-dot{width:6px;height:6px}
+.cal-legend{font-size:12px;gap:5px 11px}
+.cal-today{padding:6px 13px;font-size:15px}
+.cal-section-title h2{font-size:26px}
+.cal-section-title span{font-size:11px;letter-spacing:.16em}
+.cal-event{grid-template-columns:52px minmax(0,1fr) auto;gap:12px;padding:11px 12px}
+.cal-date b{font-size:22px}
+.cal-date span{font-size:10px}
+.cal-info h3{font-size:19px}
+.cal-info p{font-size:15px}
+.cal-info .cal-note{font-size:12px}
+.cal-empty{font-size:16px}
+.sheet form{gap:14px;padding:18px}
+.sheet h2{font-size:27px}
+.field input:not([type="radio"]),.field select{font-size:17px}
+.seg span{font-size:16px}
+.sheet-actions button{flex:1 1 auto;padding:0 16px;font-size:18px}
+.notif{padding:132px 16px 40px}
+.notif-card{padding:14px 14px 16px;border-radius:24px}
+.notif-say{grid-template-columns:70px minmax(0,1fr);gap:14px}
+.notif-mascot{height:68px}
+.notif-bubble{padding:12px 14px;border-radius:18px}
+.notif-bubble p{font-size:16px}
+.notif-change{font-size:14px}
+.notif-actions button{font-size:17px}
+.recap{width:100vw;height:100vh;border-radius:0}
+@supports(height:100dvh){.recap{height:100dvh}}
+.recap-slide{padding-inline:22px}
+}
+@media(max-width:420px){
+.field-row{grid-template-columns:minmax(0,1fr)}
+.seg{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(hover:hover){.recap-slide{padding-inline:64px}}
+@media(max-height:620px){
+.recap-slide{gap:10px;padding-top:72px;padding-bottom:112px}
+.recap-mascot{width:84px;height:76px}
+.recap-steps{gap:6px}
+.recap-steps li{padding:7px 12px}
+.recap-cta{gap:8px}
+.recap-cta button{min-height:44px}
+.recap-dots{bottom:76px}
+}
+</style>
 </head>
 <body>
 <main class="phone"><div class="screen"><div class="status"><span>9:41</span><span class="island"></span><div class="icons"><div class="bars"><span></span><span></span><span></span></div><div class="wifi"></div><div class="battery"></div></div></div>
-<section id="home" class="view active"><header class="home-head"><div><h1>Good evening,</h1><p>2 lectures today &bull; 1 class update</p></div><div class="avatar"></div></header><div class="stack"><section class="card continue"><button class="thumb neuro lecture-btn" data-course="cs" aria-label="Open Neural Networks"></button><div><div class="eyebrow">Continue Learning</div><h2>Neural Networks</h2><div class="meta">CS 101 &bull; Lecture 5</div><div class="progress"><div class="bar"><span style="width:47%"></span></div><div class="left">32 min left</div></div><button class="primary lecture-btn" data-course="cs"><span class="play"></span>Continue Lecture</button></div><div class="save"></div></section><section class="card buddy"><div class="robot"></div><div><div class="eyebrow">Study Buddy</div><h2>I remembered your last lecture on neural networks - want a quick recap?</h2><button class="outline">Get a Quick Recap &rarr;</button></div><div class="notes"></div></section><section><div class="section-title"><h2>Today</h2><span>Your Lectures</span><span class="spacer"></span><button class="small-btn">View Calendar &rsaquo;</button></div><div class="lecture lecture-btn" data-course="bio"><div class="time">10:00<span>AM</span></div><div class="thumb bio"></div><div><h3>Biology</h3><p>Genetics and Evolution</p></div><div class="tag">In 20 min</div><div class="chev">&rsaquo;</div></div><div class="lecture lecture-btn" data-course="cs"><div class="time">2:00<span>PM</span></div><div class="thumb cs"></div><div><h3>Computer Science</h3><p>Neural Networks</p></div><div class="tag">Lecture 5</div><div class="chev">&rsaquo;</div></div></section><section><div class="section-title"><h2>Memory</h2><span>Your Lectures Over Time</span><span class="spacer"></span><button class="small-btn">See All &rsaquo;</button></div><div class="memory-grid"><button class="memory-item" data-course="bio"><div class="thumb plant"></div><h3>Biology</h3><p>12 lectures</p></button><button class="memory-item" data-course="econ"><div class="thumb chess"></div><h3>Game Theory</h3><p>8 lectures</p></button><button class="memory-item" data-course="hist"><div class="thumb ren"></div><h3>Renaissance</h3><p>6 lectures</p></button><button class="memory-item" data-course="cs"><div class="thumb neuro"></div><h3>Neural Networks</h3><p>10 lectures</p></button></div></section><section><div class="section-title"><h2>Class</h2><span>The Whole Class, Captured</span><span class="spacer"></span><button class="small-btn lecture-btn" data-course="cs">View Class &rsaquo;</button></div><div class="class-row"><button class="class-card lecture-btn" data-course="bio"><div class="bubble">B</div><div><h3>Biology</h3><p>Genetics path</p></div></button><button class="class-card lecture-btn" data-course="cs"><div class="bubble">CS</div><div><h3>Computer Science</h3><p>Neural Networks</p></div></button><button class="class-card lecture-btn" data-course="hist"><div class="bubble">H</div><div><h3>History</h3><p>Renaissance unit</p></div></button></div></section></div></section>
-<section id="classView" class="view class-view"><header class="cv-hero"><button class="cv-back" id="backBtn" aria-label="Back to home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><h1 id="classTitle">Neural Networks</h1><p class="cv-sub" id="classSub">CS 101 &bull; Lecture 5</p><div class="cv-progress-row"><div class="cv-progress"><div class="cv-bar" role="progressbar" aria-label="Class progress" aria-valuemin="0" aria-valuemax="100"><span id="classBar" style="width:43%"></span></div><div class="cv-progress-meta"><span id="classDone">18 of 42 exercises completed</span><strong id="classPct">43%</strong></div></div><div class="cv-streak"><svg viewBox="0 0 24 28" aria-hidden="true"><defs><linearGradient id="flameG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".6" stop-color="#ff9a2e"/><stop offset="1" stop-color="#ffd36b"/></linearGradient></defs><path fill="url(#flameG)" d="M12 1c1 4 6 7 6 14a6 6 0 0 1-12 0c0-3 1.5-5 3-6.5 0 2 1 3.5 2.5 4C11 9 10 5 12 1Z"/><path fill="#ffe7a8" d="M12 15c1.2 1.4 2.5 2.4 2.5 4.3a2.5 2.5 0 0 1-5 0c0-1.6 1.3-2.6 2.5-4.3Z"/></svg><span>7 day<br/>streak</span></div></div></header><div class="cv-main"><div class="cv-units" id="units"></div><aside class="cv-side" aria-label="Class tools"><button class="cv-side-card"><img src="assets/cv-notes.png" alt=""/><h3>Exam Notes</h3><p>Key concepts to remember</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button><button class="cv-side-card"><svg class="cv-cal" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="8" cy="14" r=".6"/><circle cx="12" cy="14" r=".6"/><circle cx="16" cy="14" r=".6"/><circle cx="8" cy="17.5" r=".6"/><circle cx="12" cy="17.5" r=".6"/></svg><h3>Calendar</h3><p>2 upcoming deadlines</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button><button class="cv-side-card" id="classAiBtn"><img src="assets/cv-ai.png" alt=""/><h3>Class AI</h3><p>Your study assistant</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button></aside></div></section>
-<section id="exerciseView" class="view exercise-view" aria-labelledby="exTitle"><header class="ex-hero"><div class="ex-hero-left"><button class="cv-back" id="exBack" aria-label="Back to class path"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><h1 id="exTitle">Neural Networks</h1><p class="cv-sub" id="exSub">Unit 2 &bull; Perceptrons</p></div><div class="ex-hero-right"><button class="ex-icon-btn" aria-label="All exercises in this unit"><svg class="ex-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9h1M8 12h1M8 15h1M11.5 9H16M11.5 12H16M11.5 15H16"/></svg></button><div class="cv-streak"><svg viewBox="0 0 24 28" aria-hidden="true"><defs><linearGradient id="flameG2" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".6" stop-color="#ff9a2e"/><stop offset="1" stop-color="#ffd36b"/></linearGradient></defs><path fill="url(#flameG2)" d="M12 1c1 4 6 7 6 14a6 6 0 0 1-12 0c0-3 1.5-5 3-6.5 0 2 1 3.5 2.5 4C11 9 10 5 12 1Z"/><path fill="#ffe7a8" d="M12 15c1.2 1.4 2.5 2.4 2.5 4.3a2.5 2.5 0 0 1-5 0c0-1.6 1.3-2.6 2.5-4.3Z"/></svg><span>7 day<br/>streak</span></div></div></header><ol class="ex-steps" id="exSteps" aria-label="Exercise progress"></ol><p class="ex-step-label" id="exStepLabel"></p><section class="ex-coach" id="exCoach" aria-live="polite"></section><div class="ex-main"><section class="ex-card" id="exCard" aria-label="Current exercise"></section><aside class="ex-side" aria-label="Class tools"><button class="ex-side-card"><img src="assets/cv-notes.png" alt=""/><h3>Exam<br/>Notes</h3><svg class="ex-ico ch" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><button class="ex-side-card"><svg class="ex-ico si" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="8" cy="14" r=".6"/><circle cx="12" cy="14" r=".6"/><circle cx="16" cy="14" r=".6"/><circle cx="8" cy="17.5" r=".6"/><circle cx="12" cy="17.5" r=".6"/></svg><h3>Class<br/>Calendar</h3><svg class="ex-ico ch" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><button class="ex-side-card" id="exerciseAiBtn"><img src="assets/cv-ai.png" alt=""/><h3>Ask<br/>Class AI</h3></button></aside></div><div class="ex-info" id="exInfo"></div><div class="ex-cta-wrap"><button class="ex-cta" id="exCta" type="button"></button></div></section>
+<section id="home" class="view active"><header class="home-head"><div><h1>Good evening,</h1><p>2 lectures today &bull; <button class="update-link" id="updateBtn" type="button" aria-haspopup="dialog">1 class update<span class="update-dot" aria-hidden="true"></span></button></p></div><div class="avatar"></div></header><div class="stack"><section class="card continue"><button class="thumb neuro lecture-btn" data-course="cs" aria-label="Open Neural Networks"></button><div><div class="eyebrow">Continue Learning</div><h2>Neural Networks</h2><div class="meta">CS 101 &bull; Lecture 5</div><div class="progress"><div class="bar"><span style="width:47%"></span></div><div class="left">32 min left</div></div><button class="primary lecture-btn" data-course="cs"><span class="play"></span>Continue Lecture</button></div><div class="save"></div></section><section class="card buddy"><div class="robot"></div><div><div class="eyebrow">Study Buddy</div><h2>I remembered your last lecture on neural networks - want a quick recap?</h2><button class="outline" id="recapBtn" type="button" aria-haspopup="dialog">Get a Quick Recap &rarr;</button></div><div class="notes"></div></section><section><div class="section-title"><h2>Today</h2><span>Your Lectures</span><span class="spacer"></span><button class="small-btn" id="homeCalBtn" type="button">View Calendar &rsaquo;</button></div><div class="lecture lecture-btn" data-course="bio"><div class="time">10:00<span>AM</span></div><div class="thumb bio"></div><div><h3>Biology</h3><p>Genetics and Evolution</p></div><div class="tag">In 20 min</div><div class="chev">&rsaquo;</div></div><div class="lecture lecture-btn" data-course="cs"><div class="time">2:00<span>PM</span></div><div class="thumb cs"></div><div><h3>Computer Science</h3><p>Neural Networks</p></div><div class="tag">Lecture 5</div><div class="chev">&rsaquo;</div></div></section><section><div class="section-title"><h2>Memory</h2><span>Your Lectures Over Time</span><span class="spacer"></span><button class="small-btn">See All &rsaquo;</button></div><div class="memory-grid"><button class="memory-item" data-course="bio"><div class="thumb plant"></div><h3>Biology</h3><p>12 lectures</p></button><button class="memory-item" data-course="econ"><div class="thumb chess"></div><h3>Game Theory</h3><p>8 lectures</p></button><button class="memory-item" data-course="hist"><div class="thumb ren"></div><h3>Renaissance</h3><p>6 lectures</p></button><button class="memory-item" data-course="cs"><div class="thumb neuro"></div><h3>Neural Networks</h3><p>10 lectures</p></button></div></section><section><div class="section-title"><h2>Class</h2><span>The Whole Class, Captured</span><span class="spacer"></span><button class="small-btn lecture-btn" data-course="cs">View Class &rsaquo;</button></div><div class="class-row"><button class="class-card lecture-btn" data-course="bio"><div class="bubble">B</div><div><h3>Biology</h3><p>Genetics path</p></div></button><button class="class-card lecture-btn" data-course="cs"><div class="bubble">CS</div><div><h3>Computer Science</h3><p>Neural Networks</p></div></button><button class="class-card lecture-btn" data-course="hist"><div class="bubble">H</div><div><h3>History</h3><p>Renaissance unit</p></div></button></div></section></div></section>
+<section id="classView" class="view class-view"><header class="cv-hero"><button class="cv-back" id="backBtn" aria-label="Back to home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><h1 id="classTitle">Neural Networks</h1><p class="cv-sub" id="classSub">CS 101 &bull; Lecture 5</p><div class="cv-progress-row"><div class="cv-progress"><div class="cv-bar" role="progressbar" aria-label="Class progress" aria-valuemin="0" aria-valuemax="100"><span id="classBar" style="width:43%"></span></div><div class="cv-progress-meta"><span id="classDone">18 of 42 exercises completed</span><strong id="classPct">43%</strong></div></div><div class="cv-streak"><svg viewBox="0 0 24 28" aria-hidden="true"><defs><linearGradient id="flameG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".6" stop-color="#ff9a2e"/><stop offset="1" stop-color="#ffd36b"/></linearGradient></defs><path fill="url(#flameG)" d="M12 1c1 4 6 7 6 14a6 6 0 0 1-12 0c0-3 1.5-5 3-6.5 0 2 1 3.5 2.5 4C11 9 10 5 12 1Z"/><path fill="#ffe7a8" d="M12 15c1.2 1.4 2.5 2.4 2.5 4.3a2.5 2.5 0 0 1-5 0c0-1.6 1.3-2.6 2.5-4.3Z"/></svg><span>7 day<br/>streak</span></div></div></header><div class="cv-main"><div class="cv-units" id="units"></div><aside class="cv-side" aria-label="Class tools"><button class="cv-side-card"><img src="assets/cv-notes.png" alt=""/><h3>Exam Notes</h3><p>Key concepts to remember</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button><button class="cv-side-card" id="classCalBtn"><svg class="cv-cal" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="8" cy="14" r=".6"/><circle cx="12" cy="14" r=".6"/><circle cx="16" cy="14" r=".6"/><circle cx="8" cy="17.5" r=".6"/><circle cx="12" cy="17.5" r=".6"/></svg><h3>Calendar</h3><p id="classCalCount">2 upcoming deadlines</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button><button class="cv-side-card" id="classAiBtn"><img src="assets/cv-ai.png" alt=""/><h3>Class AI</h3><p>Your study assistant</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button></aside></div></section>
+<section id="exerciseView" class="view exercise-view" aria-labelledby="exTitle"><header class="ex-hero"><div class="ex-hero-left"><button class="cv-back" id="exBack" aria-label="Back to class path"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><h1 id="exTitle">Neural Networks</h1><p class="cv-sub" id="exSub">Unit 2 &bull; Perceptrons</p></div><div class="ex-hero-right"><button class="ex-icon-btn" aria-label="All exercises in this unit"><svg class="ex-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9h1M8 12h1M8 15h1M11.5 9H16M11.5 12H16M11.5 15H16"/></svg></button><div class="cv-streak"><svg viewBox="0 0 24 28" aria-hidden="true"><defs><linearGradient id="flameG2" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".6" stop-color="#ff9a2e"/><stop offset="1" stop-color="#ffd36b"/></linearGradient></defs><path fill="url(#flameG2)" d="M12 1c1 4 6 7 6 14a6 6 0 0 1-12 0c0-3 1.5-5 3-6.5 0 2 1 3.5 2.5 4C11 9 10 5 12 1Z"/><path fill="#ffe7a8" d="M12 15c1.2 1.4 2.5 2.4 2.5 4.3a2.5 2.5 0 0 1-5 0c0-1.6 1.3-2.6 2.5-4.3Z"/></svg><span>7 day<br/>streak</span></div></div></header><ol class="ex-steps" id="exSteps" aria-label="Exercise progress"></ol><p class="ex-step-label" id="exStepLabel"></p><section class="ex-coach" id="exCoach" aria-live="polite"></section><div class="ex-main"><section class="ex-card" id="exCard" aria-label="Current exercise"></section><aside class="ex-side" aria-label="Class tools"><button class="ex-side-card"><img src="assets/cv-notes.png" alt=""/><h3>Exam<br/>Notes</h3><svg class="ex-ico ch" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><button class="ex-side-card" id="exCalBtn"><svg class="ex-ico si" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="8" cy="14" r=".6"/><circle cx="12" cy="14" r=".6"/><circle cx="16" cy="14" r=".6"/><circle cx="8" cy="17.5" r=".6"/><circle cx="12" cy="17.5" r=".6"/></svg><h3>Class<br/>Calendar</h3><svg class="ex-ico ch" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><button class="ex-side-card" id="exerciseAiBtn"><img src="assets/cv-ai.png" alt=""/><h3>Ask<br/>Class AI</h3></button></aside></div><div class="ex-info" id="exInfo"></div><div class="ex-cta-wrap"><button class="ex-cta" id="exCta" type="button"></button></div></section>
 <section id="aiView" class="view ai-view" aria-labelledby="aiTitle"><div class="ai-shell"><header class="ai-hero"><div class="ai-hero-text"><div class="eyebrow">Study Buddy AI</div><h1 id="aiTitle">Ask from lecture memory</h1></div><div class="ai-mascot" aria-hidden="true"></div><p class="ai-hero-desc">Answers are grounded only in recorded lecture notes for the selected class. If the class memory does not contain it, Study Buddy says so.</p></header><div class="ai-tabs" id="aiTabs" role="tablist" aria-label="Choose a class"></div><section class="ai-chat" aria-label="Chat with Study Buddy"><div class="ai-class-meta"><span class="ai-class-name" id="aiClassTitle">Neural Networks</span><span class="ai-memory-pill" id="aiMemoryPill">3 lectures indexed</span></div><div class="ai-messages" id="aiMessages" role="log" aria-live="polite" tabindex="0" aria-label="Conversation"></div><div class="ai-suggest"><div class="eyebrow">Try asking</div><div class="ai-prompts" id="aiPrompts"></div></div><form class="ai-form" id="aiForm"><textarea class="ai-input" id="aiInput" rows="1" placeholder="Ask about this class..." aria-label="Ask about this class" autocomplete="off"></textarea><button class="ai-send" id="aiSend" type="submit" aria-label="Ask" disabled><span>Ask</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></form><p class="ai-rule"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6Z"/><path d="m9 12 2 2 4-4"/></svg><span>Grounding rule: this demo only uses lecture-memory snippets for the selected class, not the open internet or general model knowledge.</span></p></section></div></section>
-<nav class="bottom-nav"><button class="nav-item active" data-nav="home"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Home</span></button><button class="nav-item" data-nav="classes"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span>Classes</span></button><button class="nav-item record"><div class="dot"></div><span>Record</span></button><button class="nav-item" data-nav="memory"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg><span>Memory</span></button><button class="nav-item" data-nav="ai"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>AI</span></button></nav></div></main>
+<section id="calendarView" class="view cal-view" aria-labelledby="calTitle"><div class="cal-shell"><header class="cal-head"><button class="cv-back" id="calBack" type="button" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><div><div class="eyebrow">Exams and deadlines</div><h1 id="calTitle">Calendar</h1></div><button class="cal-add" id="calAdd" type="button" aria-label="Add event"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add event</span></button></header><div class="cal-filters" id="calFilters" role="group" aria-label="Filter by class"></div><section class="cal-card" aria-label="Month view"><div class="cal-month"><button class="cal-nav" id="calPrev" type="button" aria-label="Previous month"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><h2 id="calMonth" aria-live="polite"></h2><button class="cal-nav" id="calNext" type="button" aria-label="Next month"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div><div class="cal-dow" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div class="cal-grid" id="calGrid"></div><div class="cal-foot"><div class="cal-legend" aria-hidden="true"><span><i class="cal-dot exam"></i>Exam</span><span><i class="cal-dot deadline"></i>Deadline</span><span><i class="cal-dot study"></i>Study</span><span><i class="cal-dot other"></i>Event</span></div><button class="cal-today" id="calToday" type="button">Today</button></div></section><section class="cal-agenda" id="calDayPanel" aria-live="polite" hidden></section><section class="cal-agenda" aria-labelledby="calUpcomingTitle"><div class="cal-section-title"><h2 id="calUpcomingTitle">Coming up</h2><span id="calUpcomingCount"></span></div><ul class="cal-list" id="calUpcoming"></ul></section></div></section>
+<nav class="bottom-nav"><button class="nav-item active" data-nav="home"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Home</span></button><button class="nav-item" data-nav="classes"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span>Classes</span></button><button class="nav-item record"><div class="dot"></div><span>Record</span></button><button class="nav-item" data-nav="memory"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg><span>Memory</span></button><button class="nav-item" data-nav="ai"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>AI</span></button></nav></div>
+<div class="notif" id="notif" hidden><div class="notif-backdrop" data-notif-close></div><div class="notif-stack" role="dialog" aria-modal="true" aria-labelledby="notifTitle" aria-describedby="notifText"><article class="notif-card"><div class="notif-top"><span class="notif-icon" aria-hidden="true"></span><span>Study Buddy</span><time>now</time></div><div class="notif-say"><div class="notif-mascot" role="img" aria-label="Study Buddy robot"></div><div class="notif-bubble"><h2 id="notifTitle">Class update &bull; Biology</h2><p id="notifText">Your unit 4 biology exam has been moved to October 5, we already made the change in your calendar.</p></div></div><div class="notif-change"><b>Unit 4 exam</b><span><s id="notifFrom"></s> &rarr; <span class="to" id="notifTo"></span></span></div></article><div class="notif-actions"><button class="strong" id="notifCal" type="button">View in calendar</button><button type="button" data-notif-close>Dismiss</button></div></div></div>
+</main>
+<dialog class="sheet" id="eventDialog" aria-labelledby="eventDialogTitle"><form id="eventForm"><h2 id="eventDialogTitle">Add an event</h2><label class="field"><span>Title</span><input id="evTitle" name="title" type="text" required maxlength="60" placeholder="e.g. Unit 2 quiz" autocomplete="off"/></label><label class="field"><span>Class</span><select id="evCourse" name="course"></select></label><fieldset class="field"><legend>Type</legend><div class="seg"><label><input type="radio" name="type" value="exam" checked/><span>Exam</span></label><label><input type="radio" name="type" value="deadline"/><span>Deadline</span></label><label><input type="radio" name="type" value="study"/><span>Study</span></label><label><input type="radio" name="type" value="other"/><span>Other</span></label></div></fieldset><div class="field-row"><label class="field"><span>Date</span><input id="evDate" name="date" type="date" required/></label><label class="field"><span>Time (optional)</span><input id="evTime" name="time" type="time"/></label></div><div class="sheet-actions"><button class="sheet-cancel" id="evCancel" type="button">Cancel</button><button class="sheet-save" type="submit">Add to calendar</button></div></form></dialog>
+<dialog class="recap" id="recapDialog" aria-label="Lecture recap"><div class="recap-stage"><div class="recap-track" id="recapTrack" tabindex="0" aria-roledescription="carousel" aria-label="Recap slides"></div><div class="recap-top"><span class="recap-count" id="recapCount" aria-live="polite"></span><button class="recap-round" id="recapClose" type="button" aria-label="Close recap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><button class="recap-round recap-arrow prev" id="recapPrev" type="button" aria-label="Previous slide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><button class="recap-round recap-arrow next" id="recapNext" type="button" aria-label="Next slide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><div class="recap-dots" id="recapDots" aria-hidden="true"></div><div class="recap-foot"><span class="recap-avatar" aria-hidden="true"></span><div class="recap-who"><b>Study Buddy</b><span id="recapWho"></span></div><button class="recap-round recap-like" id="recapLike" type="button" aria-pressed="false" aria-label="Like this recap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></button><button class="recap-round recap-save" id="recapSave" type="button" aria-pressed="false" aria-label="Save this recap to Memory"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-4-5 4Z"/></svg></button></div></div></dialog>
 <script>
 const data={cs:{title:'Neural Networks',sub:'CS 101 • Lecture 5',done:'18 of 42 exercises completed',pct:'43%',bar:'43%',units:[['Foundations','What are neural networks? Core ideas and intuition.','5 / 8','0 100%',['Lecture Recap','Flashcards','Concept Check','Practice Set']],['Perceptrons','From single neurons to powerful models.','4 / 10','50% 100%',['Lecture Recap','Visual Examples','Quiz','Practice Set','Challenge']],['Backpropagation','The engine of learning.','6 / 12','100% 100%',['Lecture Recap','Flashcards','Practice Set','Concept Check','Quiz','Challenge']],['Exam Review','Bring it all together.','3 / 12','100% 0',['Key Concepts','Mixed Practice','Full Quiz','Final Review']]]},bio:{title:'Biology',sub:'BIO 201 • Genetics',done:'22 of 40 exercises completed',pct:'55%',bar:'55%',units:[['Foundations','DNA, inheritance, and genotype basics.','6 / 8','50% 0',['Lecture Recap','Flashcards','Concept Check','Practice Set']],['Evolution','Selection, drift, and speciation.','5 / 10','0 100%',['Lecture Recap','Visual Examples','Quiz','Practice Set','Challenge']],['Cell Signaling','Pathways your professor keeps repeating.','7 / 12','0 0',['Lecture Recap','Flashcards','Practice Set','Concept Check','Quiz','Challenge']],['Exam Review','Bring genetics and evolution together.','4 / 10','100% 100%',['Key Concepts','Mixed Practice','Full Quiz','Final Review']]]},hist:{title:'Renaissance',sub:'HIST 220 • Unit 3',done:'16 of 36 exercises completed',pct:'44%',bar:'44%',units:[['Humanism','Ideas that changed art and scholarship.','4 / 8','100% 100%',['Lecture Recap','Flashcards','Concept Check','Practice Set']],['Patrons','Families, funding, and political power.','4 / 8','50% 100%',['Lecture Recap','Visual Examples','Quiz','Practice Set']],['Art & Science','Perspective, anatomy, and invention.','5 / 10','100% 0',['Lecture Recap','Flashcards','Practice Set','Concept Check','Quiz']],['Exam Review','Make the timeline stick.','3 / 10','50% 0',['Key Concepts','Mixed Practice','Full Quiz','Final Review']]]},econ:{title:'Game Theory',sub:'ECON 310 • Unit 2',done:'14 of 34 exercises completed',pct:'41%',bar:'41%',units:[['Strategy','Payoffs, players, and choices.','4 / 8','50% 100%',['Lecture Recap','Flashcards','Concept Check','Practice Set']],['Equilibrium','Nash equilibrium in practice.','3 / 8','100% 0',['Lecture Recap','Visual Examples','Quiz','Practice Set']],['Repeated Games','Cooperation over time.','4 / 10','50% 100%',['Lecture Recap','Flashcards','Practice Set','Concept Check','Quiz']],['Exam Review','Mixed strategic reasoning.','3 / 8','0 100%',['Key Concepts','Mixed Practice','Full Quiz','Final Review']]]}};
 const AI_MEMORY={cs:{title:'Neural Networks',meta:'3 lectures indexed',prompts:['Why does activation matter?','What is backpropagation?','What did the professor say about memorizing training data?'],snippets:[[['activation','nonlinear','fire','perceptron'],'Lecture 5 says the neuron receives inputs, applies weights, adds a bias, then sends the weighted sum through an activation function. The professor stressed that without nonlinear activation, stacked layers collapse into something much closer to a linear model.'],[['backpropagation','weights','error','training'],'The recorded lecture describes backpropagation as the method for measuring prediction error and pushing that error backward through layers so each weight can improve on the next pass.'],[['generalizing','training','memorizing','examples'],'The professor connected exam questions to the difference between memorizing a training set and generalizing to new examples. Study Buddy only has that distinction from the lecture memory, so the answer should stay at that level.']]},bio:{title:'Biology',meta:'3 lectures indexed',prompts:['Explain central dogma.','How does natural selection work?','What is the cell signaling order?'],snippets:[[['dna','rna','protein','central'],'Lecture 7 frames central dogma as information moving from DNA to an RNA transcript and then to protein. The useful class shorthand was transcription first, then translation.'],[['selection','evolution','traits','population'],'The evolution lecture says selection acts on variation in a population. Individuals do not evolve during their lifetime; helpful traits become more common across generations when carriers leave more offspring.'],[['signal','receptor','response','cell'],'The cell signaling lecture repeats the order: a signal molecule arrives, a receptor binds it, and then the cell response follows. The note attached to that lecture was: no receptor, no response.']]},hist:{title:'Renaissance',meta:'3 lectures indexed',prompts:['How did patronage work?','Why did perspective matter?','How did ideas spread north?'],snippets:[[['patron','medici','money','prestige'],'The patronage lecture says wealthy families like the Medici funded artists and scholars for prestige, political influence, and public power, not simply because they were generous.'],[['perspective','art','humanism','painting'],'The class timeline connects humanist texts to patron funding and then to perspective in art. The professor described perspective as a technique that changed what viewers could see on the canvas.'],[['printing','press','florence','north'],'The spread-of-ideas lecture starts in Florence workshops, then moves to the printing press, which made copies cheaper and helped Renaissance ideas travel into Northern Europe.']]},econ:{title:'Game Theory',meta:'3 lectures indexed',prompts:['What is Nash equilibrium?','Explain prisoner’s dilemma.','Why do repeated games change behavior?'],snippets:[[['nash','equilibrium','deviate','best'],'The Nash lecture says to list strategies, find each player’s best response, then check whether anyone can gain by switching alone. If nobody wants to deviate, that is the equilibrium.'],[['prisoner','dilemma','defect','dominant'],'The prisoner’s dilemma lecture says each player has a dominant strategy to defect. The equilibrium is worse for both than mutual cooperation, which is the tension the professor emphasized.'],[['repeated','game','observe','reputation'],'The repeated-games lecture gives the order play, observe, adapt. Because players expect future rounds, reputation and punishment can change behavior.']]}};
@@ -448,9 +680,9 @@ function stars(filled){return`<div class="cv-stars" aria-label="${filled} of 3 s
 function renderUnit(u,i,nextUnit){const names=u[4],n=names.length,[got,total]=u[2].split('/').map(s=>parseInt(s,10));const done=Math.min(n-1,Math.round(n*got/total));const nodes=names.map((name,j)=>{const status=j<done?'done':j===done?(i===nextUnit?'next':'active'):'locked';const portal=name==='Final Review';const size=portal?60:status==='next'?74:62;return{name,j,status,portal,top:NODE_TOPS[j%NODE_TOPS.length],cy:NODE_TOPS[j%NODE_TOPS.length]+size/2,x:(j+.5)/n*100}});const pts=[{x:0,y:nodes[0].cy-18},...nodes.map(p=>({x:p.x,y:p.cy})),{x:100,y:nodes[n-1].cy-12}];const d=pts.reduce((acc,p,k)=>{if(!k)return`M${p.x} ${p.y}`;const a=pts[k-1],mx=(a.x+p.x)/2;return`${acc} C${mx} ${a.y} ${mx} ${p.y} ${p.x} ${p.y}`},'');
 const nodeHtml=nodes.map(p=>{const label=`<div class="cv-label">${i+1}.${p.j+1}<br/>${p.name}</div>`;const statusText=p.status==='done'?'completed':p.status==='locked'?'locked':p.status==='next'?'next up':'in progress';const exercise=3+p.j%3;if(p.portal)return`<button class="cv-node ${p.status}" data-unit="${i}" data-exercise="${exercise}" ${p.status==='locked'?'aria-disabled="true"':''} style="left:${p.x}%;top:${p.top-6}px" aria-label="${i+1}.${p.j+1} ${p.name}, ${statusText}"><div class="cv-portal"></div>${label}${stars(p.status==='done'?3:0)}</button>`;const icon=p.status==='locked'&&p.name!=='Challenge'?ICONS.lock:ICONS[ICON_FOR[p.name]||'play'];return`<button class="cv-node ${p.status}" data-unit="${i}" data-exercise="${exercise}" ${p.status==='locked'?'aria-disabled="true"':''} style="left:${p.x}%;top:${p.top}px" aria-label="${i+1}.${p.j+1} ${p.name}, ${statusText}">${p.status==='next'?'<span class="cv-pill">Next Up</span>':''}<div class="cv-orb">${icon}${p.status==='done'?`<span class="cv-check">${ICONS.check}</span>`:''}</div>${label}${p.name==='Challenge'?stars(p.status==='done'?3:1):''}</button>`}).join('');
 return`<section class="cv-unit" aria-label="Unit ${i+1}: ${u[0]}"><button class="cv-card"><div class="cv-art" style="background-image:url('assets/cv-unit-${i%4+1}.png')"></div><div class="cv-info"><div class="cv-kicker">Unit ${i+1}</div><h2>${u[0]}</h2><p>${u[1]}</p></div><div class="cv-count"><span><b>${u[2]}</b><br/>completed</span><span class="cv-chev" aria-hidden="true">${svgIcon('<path d="m9 18 6-6-6-6"/>')}</span></div></button><div class="cv-track" style="--n:${n}"><svg class="cv-path" viewBox="0 0 100 186" preserveAspectRatio="none" aria-hidden="true"><path class="halo" d="${d}"/><path class="core" d="${d}"/><path class="spark" d="${d}"/></svg>${nodeHtml}</div></section>`}
-let curCourse='cs',aiCourse='cs',aiMessagesByCourse={};function hideViews(){home.classList.remove('active');classView.classList.remove('active');exerciseView.classList.remove('active');aiView.classList.remove('active')}
+let curCourse='cs',aiCourse='cs',aiMessagesByCourse={};function hideViews(){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'))}
 function setNav(name){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));const n=document.querySelector(`[data-nav="${name}"]`);if(n)n.classList.add('active')}
-function showClass(key='cs'){curCourse=data[key]?key:'cs';const c=data[key]||data.cs;hideViews();classView.classList.add('active');setNav('classes');classTitle.textContent=c.title;classSub.textContent=c.sub;classDone.textContent=c.done;classPct.textContent=c.pct;classBar.style.width=c.bar;classBar.parentElement.setAttribute('aria-valuenow',parseInt(c.pct,10));units.innerHTML=c.units.map((u,i)=>renderUnit(u,i,0)).join('');window.scrollTo(0,0)}
+function showClass(key='cs'){curCourse=data[key]?key:'cs';const c=data[key]||data.cs;hideViews();classView.classList.add('active');setNav('classes');classTitle.textContent=c.title;classSub.textContent=c.sub;classDone.textContent=c.done;classPct.textContent=c.pct;classBar.style.width=c.bar;classBar.parentElement.setAttribute('aria-valuenow',parseInt(c.pct,10));units.innerHTML=c.units.map((u,i)=>renderUnit(u,i,0)).join('');refreshClassCalCount();window.scrollTo(0,0)}
 function showHome(){hideViews();home.classList.add('active');setNav('home')}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 function renderAiTabs(){aiTabs.innerHTML=Object.keys(AI_MEMORY).map(k=>`<button class="ai-tab ${k===aiCourse?'active':''}" type="button" role="tab" aria-selected="${k===aiCourse}" data-ai-course="${k}">${esc(AI_MEMORY[k].title)}</button>`).join('')}
@@ -532,6 +764,91 @@ exCard.addEventListener('drop',e=>{const t=e.target.closest('[data-slot],[data-t
 exCoach.addEventListener('click',e=>{const btn=e.target.closest('[data-replay]');if(!btn)return;const w=exById('exWave');if(w){w.classList.remove('playing');void w.offsetWidth;w.classList.add('playing')}const script=professorClip();if(script)speakProfessorClip(btn);document.dispatchEvent(new CustomEvent('studybuddy:replay-clip',{detail:{course:EX.course,unit:EX.unit,exercise:EX.cur+1,script}}))});
 exBack.addEventListener('click',()=>showClass(EX.course));
 units.addEventListener('click',e=>{const n=e.target.closest('.cv-node');if(!n||n.classList.contains('locked'))return;openExercise(curCourse,+n.dataset.unit,+n.dataset.exercise)});
+/* ---------- Calendar ---------- */
+const DEMO_TODAY='2026-10-01'; // the demo's "today": keeps the sample dates below upcoming, like the 9:41 clock
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'],DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],DOW_LONG=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const CAL_TYPES={exam:'Exam',deadline:'Deadline',study:'Study',other:'Event'},CAL_SHORT={exam:'exam',deadline:'due',study:'study',other:'event'},COURSE_SHORT={cs:'CS',bio:'Bio',hist:'Hist',econ:'Econ'};
+let calEvents=[
+{id:'bio-lab',date:'2026-10-02',time:'17:00',title:'Genetics lab report due',course:'bio',type:'deadline'},
+{id:'bio-u4',date:'2026-10-05',time:'10:00',title:'Unit 4 exam',course:'bio',type:'exam',movedFrom:'2026-10-08'},
+{id:'cs-ps3',date:'2026-10-09',time:'23:59',title:'Problem Set 3 due',course:'cs',type:'deadline'},
+{id:'cs-mid',date:'2026-10-14',time:'14:00',title:'Midterm: perceptrons and backpropagation',course:'cs',type:'exam'},
+{id:'econ-q3',date:'2026-10-16',time:'09:30',title:'Quiz 3: Nash equilibrium',course:'econ',type:'exam'},
+{id:'hist-essay',date:'2026-10-21',time:'17:00',title:'Patronage essay draft due',course:'hist',type:'deadline'},
+{id:'hist-u3',date:'2026-10-27',time:'13:00',title:'Unit 3 exam',course:'hist',type:'exam'},
+{id:'cs-final',date:'2026-11-18',time:'09:00',title:'Final exam',course:'cs',type:'exam'}];
+const CAL={ym:DEMO_TODAY.slice(0,7),sel:null,filter:'all',from:'home'};
+const pad2=n=>String(n).padStart(2,'0');
+const parseYmd=s=>{const[y,m,d]=s.split('-').map(Number);return{y,m,d,dow:new Date(y,m-1,d).getDay()}};
+const fmtDay=s=>{const p=parseYmd(s);return`${DOW[p.dow]}, ${MONTHS[p.m-1].slice(0,3)} ${p.d}`};
+const fmtDayLong=s=>{const p=parseYmd(s);return`${DOW_LONG[p.dow]}, ${MONTHS[p.m-1]} ${p.d}`};
+const fmtTime=t=>{if(!t)return'';const[h,mi]=t.split(':').map(Number);return`${h%12||12}:${pad2(mi)} ${h<12?'AM':'PM'}`};
+const calSort=(a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''));
+const calShown=()=>calEvents.filter(e=>CAL.filter==='all'||e.course===CAL.filter).sort(calSort);
+const calUpcomingFor=k=>calEvents.filter(e=>e.course===k&&e.date>=DEMO_TODAY).length;
+const calChipText=e=>{const t=`${COURSE_SHORT[e.course]||''} ${CAL_SHORT[e.type]}`.trim();return t[0].toUpperCase()+t.slice(1)};
+function calEventHtml(e){const p=parseYmd(e.date),meta=[data[e.course]?.title,fmtTime(e.time)].filter(Boolean).join(' • ');return`<li class="cal-event ${e.movedFrom?'moved':''}" data-event="${esc(e.id)}"><div class="cal-date"><span>${MONTHS[p.m-1].slice(0,3)}</span><b>${p.d}</b><span>${DOW[p.dow]}</span></div><div class="cal-info"><h3>${esc(e.title)}</h3><p><span class="cal-tag ${e.type}">${CAL_TYPES[e.type]}</span><span>${esc(meta)}</span></p>${e.movedFrom?`<p class="cal-note"><i aria-hidden="true"></i><span>Moved from ${fmtDay(e.movedFrom)}. Study Buddy already updated your calendar.</span></p>`:''}</div>${e.custom?`<button class="cal-remove" type="button" data-remove="${esc(e.id)}" aria-label="Remove ${esc(e.title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`:''}</li>`}
+function renderCalendar(){const[y,m]=CAL.ym.split('-').map(Number),shown=calShown(),byDay={};shown.forEach(e=>(byDay[e.date]??=[]).push(e));
+calFilters.innerHTML=[['all','All classes'],...Object.keys(data).map(k=>[k,data[k].title])].map(([k,t])=>`<button class="cal-filter" type="button" data-filter="${k}" aria-pressed="${CAL.filter===k}">${esc(t)}</button>`).join('');
+calMonth.textContent=`${MONTHS[m-1]} ${y}`;
+const lead=new Date(y,m-1,1).getDay(),days=new Date(y,m,0).getDate();let h='';for(let i=0;i<lead;i++)h+='<div aria-hidden="true"></div>';
+for(let d=1;d<=days;d++){const ds=`${y}-${pad2(m)}-${pad2(d)}`,ev=byDay[ds]||[],sel=CAL.sel===ds;h+=`<button type="button" class="cal-day ${ds===DEMO_TODAY?'today':''} ${ev.some(e=>e.type==='exam')?'has-exam':''}" data-day="${ds}" aria-pressed="${sel}" aria-label="${fmtDayLong(ds)}${ds===DEMO_TODAY?', today':''}${ev.length?`, ${ev.map(e=>`${[data[e.course]?.title,e.title].filter(Boolean).join(' ')}`).join('; ')}`:', nothing scheduled'}"><span class="cal-num">${d}</span>${ev.slice(0,2).map(e=>`<span class="cal-chip ${e.type}">${esc(calChipText(e))}</span>`).join('')}${ev.length>2?`<span class="cal-more">+${ev.length-2} more</span>`:''}${ev.length?`<span class="cal-dots">${ev.slice(0,3).map(e=>`<i class="cal-dot ${e.type}"></i>`).join('')}</span>`:''}</button>`}
+calGrid.innerHTML=h;
+if(CAL.sel){const ev=byDay[CAL.sel]||[];calDayPanel.hidden=false;calDayPanel.innerHTML=`<div class="cal-section-title"><h2>${fmtDayLong(CAL.sel)}</h2><span>${ev.length?`${ev.length} ${ev.length===1?'event':'events'}`:''}</span></div>${ev.length?`<ul class="cal-list">${ev.map(calEventHtml).join('')}</ul>`:`<div class="cal-empty"><span>Nothing scheduled.</span><button type="button" data-add-day>Add an event</button></div>`}`}else{calDayPanel.hidden=true;calDayPanel.innerHTML=''}
+const up=shown.filter(e=>e.date>=DEMO_TODAY);calUpcomingCount.textContent=`${up.length} ${up.length===1?'date':'dates'}`;calUpcoming.innerHTML=up.length?up.map(calEventHtml).join(''):'<li class="cal-empty"><span>Nothing coming up for this class.</span></li>'}
+function calFlash(id){const el=calendarView.querySelector(`[data-event="${id}"]`);if(!el)return;el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');el.scrollIntoView({block:'nearest'})}
+function showView(el,nav){hideViews();el.classList.add('active');setNav(nav)}
+function showCalendar(o={}){CAL.from=o.from||'home';CAL.filter=data[o.course]?o.course:'all';CAL.sel=null;CAL.ym=DEMO_TODAY.slice(0,7);const f=o.focus&&calEvents.find(e=>e.id===o.focus);if(f){CAL.sel=f.date;CAL.ym=f.date.slice(0,7)}showView(calendarView,CAL.from==='home'?'home':'classes');renderCalendar();window.scrollTo(0,0);if(f)calFlash(f.id)}
+function calShift(n){let[y,m]=CAL.ym.split('-').map(Number);m+=n;if(m<1){m=12;y--}if(m>12){m=1;y++}CAL.ym=`${y}-${pad2(m)}`;renderCalendar()}
+function openEventDialog(){evCourse.innerHTML=`<option value="">General</option>${Object.keys(data).map(k=>`<option value="${k}">${esc(data[k].title)}</option>`).join('')}`;eventForm.reset();evCourse.value=CAL.filter==='all'?'':CAL.filter;evDate.value=CAL.sel||DEMO_TODAY;eventDialog.showModal();evTitle.focus()}
+function refreshClassCalCount(){const n=calUpcomingFor(curCourse);classCalCount.textContent=`${n} upcoming ${n===1?'deadline':'deadlines'}`}
+homeCalBtn.addEventListener('click',()=>showCalendar({from:'home'}));
+classCalBtn.addEventListener('click',()=>showCalendar({from:'class',course:curCourse}));
+exCalBtn.addEventListener('click',()=>showCalendar({from:'exercise',course:EX.course}));
+calBack.addEventListener('click',()=>{if(CAL.from==='class')showClass(curCourse);else if(CAL.from==='exercise'){showView(exerciseView,'classes');window.scrollTo(0,0)}else showHome()});
+calPrev.addEventListener('click',()=>calShift(-1));calNext.addEventListener('click',()=>calShift(1));
+calToday.addEventListener('click',()=>{CAL.ym=DEMO_TODAY.slice(0,7);CAL.sel=DEMO_TODAY;renderCalendar()});
+calFilters.addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;CAL.filter=b.dataset.filter;renderCalendar();calFilters.querySelector(`[data-filter="${CAL.filter}"]`)?.focus()});
+calGrid.addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;CAL.sel=CAL.sel===b.dataset.day?null:b.dataset.day;renderCalendar();calGrid.querySelector(`[data-day="${b.dataset.day}"]`)?.focus()});
+calAdd.addEventListener('click',openEventDialog);
+calendarView.addEventListener('click',e=>{if(e.target.closest('[data-add-day]')){openEventDialog();return}const r=e.target.closest('[data-remove]');if(!r)return;calEvents=calEvents.filter(x=>x.id!==r.dataset.remove);renderCalendar();refreshClassCalCount()});
+evCancel.addEventListener('click',()=>eventDialog.close());
+eventDialog.addEventListener('click',e=>{if(e.target===eventDialog)eventDialog.close()});
+eventForm.addEventListener('submit',e=>{e.preventDefault();const f=new FormData(eventForm),title=String(f.get('title')).trim(),date=String(f.get('date'));if(!title||!/^\d{4}-\d{2}-\d{2}$/.test(date)){eventForm.reportValidity();return}const ev={id:`user-${Date.now()}`,custom:true,title,date,time:String(f.get('time')||''),course:String(f.get('course')||''),type:String(f.get('type')||'other')};calEvents.push(ev);if(CAL.filter!=='all'&&CAL.filter!==ev.course)CAL.filter='all';CAL.sel=date;CAL.ym=date.slice(0,7);eventDialog.close();renderCalendar();refreshClassCalCount();calFlash(ev.id);document.dispatchEvent(new CustomEvent('studybuddy:add-event',{detail:ev}))});
+/* ---------- Class-update notification ---------- */
+const NOTIF_EVENT='bio-u4';
+function openNotif(){const e=calEvents.find(x=>x.id===NOTIF_EVENT);notifFrom.textContent=e?fmtDay(e.movedFrom):'';notifTo.textContent=e?fmtDay(e.date):'';notif.hidden=false;document.querySelector('.screen').inert=true;notifCal.focus()}
+function closeNotif(){if(notif.hidden)return;notif.hidden=true;document.querySelector('.screen').inert=false;updateBtn.focus()}
+updateBtn.addEventListener('click',openNotif);
+notif.addEventListener('click',e=>{if(e.target.closest('[data-notif-close]'))closeNotif()});
+notifCal.addEventListener('click',()=>{closeNotif();showCalendar({from:'home',focus:NOTIF_EVENT})});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!notif.hidden)closeNotif()});
+/* ---------- Recap slideshow ---------- */
+const RECAP={course:'cs',unit:1,who:'Neural Networks • Lecture 5 recap',slides:[
+{bg:'cv-hero.png',kicker:'Neural Networks • CS 101',h:'Lecture 5 in <mark>60 seconds</mark>',text:'Perceptrons, activation and one training pass. Swipe or tap to start.'},
+{bg:'cv-unit-1.png',kicker:'1 • The neuron',h:'A neuron receives <mark>inputs</mark> and applies <mark>weights</mark>',text:'Then it adds a bias. Everything else in this lecture builds on that picture.'},
+{bg:'cv-unit-2.png',kicker:'2 • Weighted sum',h:'First comes the <mark>weighted sum</mark>',text:'Inputs arrive with weights attached, then the bias is added. Professor Douglas: hear the sequence, do not just memorize the vocabulary.'},
+{bg:'cv-unit-3.png',kicker:'3 • Activation',h:'Then the sum goes through an <mark>activation function</mark>',text:'Without nonlinear activation, stacked layers collapse into something much closer to a linear model.'},
+{bg:'ex-constellation.png',kicker:'Common mix-up • Quiz 2',h:'Backpropagation is <mark>not</mark> the firing step',text:'The neuron fires from the weighted sum and the activation. Backpropagation comes later, when the network trains.'},
+{bg:'cv-unit-4.png',kicker:'4 • One training pass',h:'<mark>Forward</mark>, <mark>error</mark>, <mark>update</mark>',steps:['Run the inputs forward to get a prediction','Measure the error against the correct answer','Send it backward and update the weights'],text:'Professor Douglas drew this loop on the board twice.'},
+{bg:'cv-portal.png',kicker:'Likely on the exam',h:'<mark>Memorizing</mark> the training set is not <mark>generalizing</mark>',text:'The professor tied exam questions to this difference: can the model handle new examples?'},
+{bg:'cv-hero.png',end:true,kicker:'Recap complete',h:'That is Lecture 5.',text:'Keep it fresh with a quick practice round.'}]};
+let recapIndex=0;
+const recapMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+function renderRecap(){const n=RECAP.slides.length;recapWho.textContent=RECAP.who;recapTrack.innerHTML=RECAP.slides.map((s,i)=>`<section class="recap-slide ${s.end?'end':''}" style="background-image:url('assets/${s.bg}')" aria-roledescription="slide" aria-label="Slide ${i+1} of ${n}"><span class="recap-kicker">${s.kicker}</span>${s.end?'<div class="recap-mascot" aria-hidden="true"></div>':''}<h2>${s.h}</h2>${s.steps?`<ol class="recap-steps">${s.steps.map(t=>`<li><span>${t}</span></li>`).join('')}</ol>`:''}${s.text?`<p class="recap-text">${s.text}</p>`:''}${s.end?'<div class="recap-cta"><button class="go" type="button" data-recap="practice">Practice this unit</button><button class="alt" type="button" data-recap="ask">Ask Class AI</button><button class="alt" type="button" data-recap="again">Watch again</button></div>':''}</section>`).join('');recapDots.innerHTML=RECAP.slides.map(()=>'<i></i>').join('')}
+function recapPaint(){const n=RECAP.slides.length;recapCount.textContent=`${recapIndex+1} / ${n}`;[...recapDots.children].forEach((d,i)=>d.classList.toggle('on',i===recapIndex));recapPrev.disabled=recapIndex===0;recapNext.disabled=recapIndex===n-1}
+function recapGo(i,behavior=recapMotion()){i=Math.max(0,Math.min(RECAP.slides.length-1,i));recapTrack.scrollTo({left:i*recapTrack.clientWidth,behavior});if(behavior==='auto'){recapIndex=i;recapPaint()}}
+function openRecap(){renderRecap();recapLike.setAttribute('aria-pressed','false');recapDialog.showModal();recapIndex=0;recapGo(0,'auto');recapTrack.focus()}
+recapBtn.addEventListener('click',openRecap);
+recapTrack.addEventListener('scroll',()=>{const w=recapTrack.clientWidth;if(!w)return;const i=Math.round(recapTrack.scrollLeft/w);if(i!==recapIndex){recapIndex=i;recapPaint()}},{passive:true});
+recapTrack.addEventListener('click',e=>{const a=e.target.closest('[data-recap]');if(a){const act=a.dataset.recap;if(act==='again'){recapGo(0);return}recapDialog.close();if(act==='practice'){curCourse=RECAP.course;openExercise(RECAP.course,RECAP.unit,3)}else showAi(RECAP.course);return}const r=recapTrack.getBoundingClientRect();recapGo(recapIndex+((e.clientX-r.left)<r.width*.3?-1:1))});
+recapPrev.addEventListener('click',()=>recapGo(recapIndex-1));recapNext.addEventListener('click',()=>recapGo(recapIndex+1));
+recapClose.addEventListener('click',()=>recapDialog.close());
+recapDialog.addEventListener('click',e=>{if(e.target===recapDialog)recapDialog.close()});
+recapDialog.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){e.preventDefault();recapGo(recapIndex+1)}else if(e.key==='ArrowLeft'){e.preventDefault();recapGo(recapIndex-1)}});
+recapDialog.addEventListener('close',()=>recapBtn.focus());
+[recapLike,recapSave].forEach(b=>b.addEventListener('click',()=>b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')));
+refreshClassCalCount();
 </script>
 </body>
 </html>
