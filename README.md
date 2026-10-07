@@ -8,6 +8,9 @@ v0 can redesign screens freely and call these modules for behavior.
 - `src/core/api.mjs` exposes the app API v0 should use.
 - `src/core/studybuddy.mjs` contains deterministic course-memory, lecture-ingestion, flashcard, quiz, and study-plan logic.
 - `src/core/repository.mjs` includes in-memory and `localStorage` repositories.
+- `src/server/routes.mjs` exposes the same API as REST routes for a real backend.
+- `src/db/postgres-repository.mjs` swaps storage to Neon/Postgres when `DATABASE_URL` is set.
+- `src/db/drizzle-schema.mjs` and `src/db/migrations/0001_initial.sql` define the production tables.
 - `src/data/seed.mjs` provides sample course and lecture data for prototypes.
 
 ## Example
@@ -36,4 +39,24 @@ const plan = await api.buildStudyPlan(course.id, { sessionsPerDay: 2 });
 ```bash
 npm test
 npm run dev
+npm run dev:api
 ```
+
+## REST API
+
+The frontend can keep using the core contract through HTTP:
+
+- `GET /api/health`
+- `GET /api/courses`
+- `POST /api/courses`
+- `GET /api/courses/:courseId`
+- `POST /api/courses/:courseId/lectures`
+- `POST /api/courses/:courseId/exam-dates`
+- `POST /api/courses/:courseId/study-plan`
+- `GET /api/courses/:courseId/search?q=term`
+- `GET /api/courses/:courseId/export`
+- `POST /api/courses/:courseId/exercises/:exerciseId/complete`
+- `POST /api/courses/:courseId/exercises/:exerciseId/reopen`
+
+By default the API uses in-memory storage. Set `DATABASE_URL` or `STUDYBUDDY_STORAGE=postgres`
+to use Neon/Postgres.
