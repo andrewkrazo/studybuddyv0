@@ -100,7 +100,7 @@
 .ex-coach-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
 .ex-meta{font-size:16px;color:#b8c3cf}
 .ex-replay{margin-left:auto;display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(255,220,160,.7);background:rgba(255,210,140,.08);border-radius:999px;padding:8px 20px;font-size:21px;white-space:nowrap}
-.ex-replay .ex-ico{width:20px;height:20px}
+.ex-replay .ex-ico{width:20px;height:20px}.ex-replay.speaking{background:rgba(255,210,140,.2);box-shadow:0 0 18px rgba(255,198,116,.35)}
 .ex-main{display:grid;grid-template-columns:minmax(0,1fr) 122px;gap:16px;align-items:stretch}
 .ex-card{position:relative;border:1px solid rgba(255,220,160,.32);border-radius:26px;padding:22px 20px 20px;overflow:hidden;background:linear-gradient(180deg,rgba(11,28,44,.95),rgba(7,17,28,.95));box-shadow:0 14px 40px rgba(0,0,0,.45)}
 .ex-card:before{content:"";position:absolute;top:-34px;right:-40px;width:280px;height:280px;background:url("assets/ex-constellation.png") center/cover;mix-blend-mode:screen;opacity:.85;pointer-events:none}
@@ -223,6 +223,26 @@ econ:{items:[
 };
 const EX={course:'cs',unit:1,cur:3,st:{},focus:null};
 const exById=id=>document.getElementById(id);
+const PROFESSOR_CLIPS={cs:[
+"Okay, pause here. In the perceptron picture, I want you to hear the sequence, not memorize the vocabulary. Inputs arrive with weights attached, we add the bias, then the neuron compresses that weighted sum through an activation function. Backpropagation is not the firing step. Backpropagation is what happens later, when the model asks, how wrong was I, and how should each weight move next time?",
+"This is the common mix-up from quiz two. The perceptron does not use backpropagation to decide whether it fires. It computes the weighted sum first, then applies an activation function. Backpropagation belongs to training the network across examples, where the error is pushed backward so the weights can improve.",
+"For one training pass, think of it like a loop I drew on the board. We run the inputs forward to get a prediction. Then we measure the error against the correct answer. Only after that do we send information backward and update the weights. Forward, error, update. That rhythm is the whole training story."],
+bio:[
+"For central dogma, do not start with protein. The information is stored in DNA, copied into an RNA transcript, and then translated into protein. If you keep that direction in your head, a lot of the genetics questions become much easier to reason through.",
+"Here is the correction I wanted you to make. Individuals do not evolve during their lifetime in the Darwinian sense. Populations evolve across generations because individuals with helpful traits tend to leave more offspring. Selection acts on variation that already exists.",
+"In signaling, the order matters because the cell is not guessing. A signal molecule arrives, the receptor binds it, and that binding starts the pathway that produces a response. No receptor, no meaningful response. That is why I repeated that phrase in lecture."],
+hist:[
+"On the Renaissance timeline, I want you to connect ideas to money to technique. Humanist texts gave artists and scholars new intellectual material. Patrons paid to make that work visible. Then perspective changed what viewers could see on the canvas.",
+"The mistake is thinking patrons funded art because they were simply generous. Patronage was about prestige, family power, and public influence. The Medici did not just buy paintings. They bought a place in the story of the city.",
+"For the spread of Renaissance ideas, start in Florence workshops, then bring in the printing press. The press made copies cheap and fast, so ideas travelled north faster than any single artist could. That is the movement I want you to remember."],
+econ:[
+"For Nash equilibrium, do not jump straight to the outcome. List the strategies first. Then find each player's best response to the other player's choices. Only after that do we ask whether anyone can improve by switching alone. If nobody wants to deviate, that is the equilibrium.",
+"In the prisoner's dilemma, both players do not cooperate just because cooperation is collectively better. Each player's dominant strategy points toward defecting. That is why the equilibrium is worse for both than mutual cooperation. The tension is the lesson.",
+"In repeated games, the order is play, observe, adapt. A single round tells you what happened once, but repeated rounds create reputation and punishment. That is why behavior can change when players know they will meet again."]};
+let currentSpeech=null;
+function professorClip(){const clips=PROFESSOR_CLIPS[EX.course]||PROFESSOR_CLIPS.cs;return clips[Math.max(0,Math.min(EX.cur-3,clips.length-1))]}
+function pickProfessorVoice(){const voices=speechSynthesis.getVoices();return voices.find(v=>/Daniel|George|Thomas|Alex|Google US English|Microsoft David|Microsoft Mark/i.test(v.name))||voices.find(v=>/^en[-_]/i.test(v.lang))||voices[0]||null}
+function speakProfessorClip(btn){if(!('speechSynthesis'in window)||!('SpeechSynthesisUtterance'in window)){btn.textContent='Audio unavailable';return}speechSynthesis.cancel();const text=professorClip();const utterance=new SpeechSynthesisUtterance(text);const voice=pickProfessorVoice();if(voice)utterance.voice=voice;utterance.rate=.92;utterance.pitch=.88;utterance.volume=1;currentSpeech=utterance;btn.classList.add('speaking');btn.setAttribute('aria-label','Playing professor lecture clip');const old=btn.innerHTML;btn.innerHTML=`${X('wave')}Playing clip`;utterance.onend=utterance.onerror=()=>{btn.classList.remove('speaking');btn.removeAttribute('aria-label');btn.innerHTML=old;if(currentSpeech===utterance)currentSpeech=null};speechSynthesis.speak(utterance)}
 const exItem=()=>EXERCISES[EX.course].items[EX.cur-3];
 function exFresh(){const it=exItem();EX.st=!it?{}:it.type==='order'?{slots:[...it.prefill],result:null,hinted:false}:{flag:null,pick:null,result:null};EX.focus=null}
 function openExercise(key,unit){EX.course=EXERCISES[key]?key:'cs';EX.unit=unit;EX.cur=3;exFresh();classView.classList.remove('active');home.classList.remove('active');exerciseView.classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.querySelector('[data-nav="classes"]').classList.add('active');const c=data[EX.course];exById('exTitle').textContent=c.title;exById('exSub').textContent=`Unit ${unit+1} \u2022 ${c.units[unit][0]}`;renderEx();window.scrollTo(0,0)}
@@ -248,7 +268,7 @@ exCard.addEventListener('dragstart',e=>{const c=e.target.closest('[data-card]');
 exCard.addEventListener('dragover',e=>{const t=e.target.closest('[data-slot],[data-tray]');if(!t)return;e.preventDefault();exCard.querySelectorAll('.over').forEach(o=>o.classList.remove('over'));t.classList.add('over')});
 exCard.addEventListener('dragleave',e=>{if(!exCard.contains(e.relatedTarget))exCard.querySelectorAll('.over').forEach(o=>o.classList.remove('over'))});
 exCard.addEventListener('drop',e=>{const t=e.target.closest('[data-slot],[data-tray]');if(!t)return;e.preventDefault();let d;try{d=JSON.parse(e.dataTransfer.getData('text/plain'))}catch{return}if(t.dataset.slot!==undefined)exMove(d.id,d.from,+t.dataset.slot);else if(d.from!==''){EX.st.slots[+d.from]=null;exTouched()}});
-exCoach.addEventListener('click',e=>{if(!e.target.closest('[data-replay]'))return;const w=exById('exWave');if(w){w.classList.remove('playing');void w.offsetWidth;w.classList.add('playing')}document.dispatchEvent(new CustomEvent('studybuddy:replay-clip',{detail:{course:EX.course,unit:EX.unit,exercise:EX.cur+1}}))});
+exCoach.addEventListener('click',e=>{const btn=e.target.closest('[data-replay]');if(!btn)return;const w=exById('exWave');if(w){w.classList.remove('playing');void w.offsetWidth;w.classList.add('playing')}speakProfessorClip(btn);document.dispatchEvent(new CustomEvent('studybuddy:replay-clip',{detail:{course:EX.course,unit:EX.unit,exercise:EX.cur+1,script:professorClip()}}))});
 exBack.addEventListener('click',()=>showClass(EX.course));
 units.addEventListener('click',e=>{const n=e.target.closest('.cv-node');if(!n||n.classList.contains('locked'))return;openExercise(curCourse,+n.dataset.unit)});
 </script>
