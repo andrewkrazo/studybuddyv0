@@ -1,0 +1,11 @@
+{
+  "name": "studybuddyv0",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "python -m http.server 3000 --directory dist",
+    "start": "python -m http.server 3000 --directory dist",
+    "test": "node --test src/**/*.test.mjs"
+  }
+}
