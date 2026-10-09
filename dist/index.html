@@ -783,10 +783,263 @@ h1,h2,h3,p{overflow-wrap:break-word}
 }
 @media(max-width:360px){.nav-item{font-size:12px}}
 </style>
+<style id="home-v2">
+/* ---------- Home (v2) ---------- */
+.hm{display:grid;grid-template-columns:minmax(0,1fr);gap:30px}
+.hm>*{min-width:0}
+.hm svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hm-eyebrow,.hm-date{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;letter-spacing:.24em;text-transform:uppercase;color:#c2cad2}
+.hm button{font:inherit;color:inherit;cursor:pointer}
+.hm button:focus-visible{outline:2px solid #ffe2b0;outline-offset:3px}
+
+/* header */
+.hm-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:start;padding-top:6px}
+.hm-head>div{min-width:0}
+.hm-date{margin-bottom:10px}
+.hm-head h1{margin:0;font-size:54px;line-height:1.02;font-weight:400;letter-spacing:-.01em;text-shadow:0 4px 18px rgba(0,0,0,.5)}
+.hm-head h1 em{font-style:italic;color:var(--gold2)}
+.hm-sub{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:16px;font-family:Inter,system-ui,sans-serif;font-size:17px;color:#cfd5dc}
+.hm-update{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 15px 0 12px;border:1px solid rgba(255,125,98,.55);border-radius:999px;background:rgba(255,125,98,.13);color:#ffd6cc;font-family:Inter,system-ui,sans-serif!important;font-size:15px!important;font-weight:600;line-height:1;white-space:nowrap;transition:background .2s,border-color .2s,transform .2s}
+.hm-update:hover{background:rgba(255,125,98,.22);border-color:rgba(255,160,135,.85);transform:translateY(-1px)}
+.hm-update svg{width:17px;height:17px}
+.hm-dot{width:8px;height:8px;border-radius:50%;background:#ff7d62;animation:hm-ping 2.2s ease-out infinite}
+@keyframes hm-ping{0%{box-shadow:0 0 0 0 rgba(255,125,98,.6)}70%,100%{box-shadow:0 0 0 8px rgba(255,125,98,0)}}
+.hm-avatar{position:relative;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:21px;letter-spacing:.03em;color:#2a1b08;background:radial-gradient(circle at 35% 30%,#fbe2b4,#d49b51 72%);box-shadow:0 0 0 2px #0b1626,0 0 0 3.5px rgba(255,224,173,.85),0 10px 26px rgba(0,0,0,.45)}
+.hm-streak{position:absolute;right:-8px;bottom:-6px;display:flex;align-items:center;gap:2px;padding:3px 7px 3px 5px;border-radius:999px;border:1px solid rgba(255,220,160,.6);background:#0b1a2a;color:#ffe0ad;font:700 12px/1 Inter,system-ui,sans-serif}
+.hm-streak svg{width:10px;height:12px;stroke:none!important}
+
+/* continue hero */
+.hm-hero{position:relative;isolation:isolate;overflow:hidden;min-height:310px;display:flex;flex-direction:column;justify-content:flex-end;padding:26px;border:1px solid var(--line);border-radius:26px;background:#071422 url("assets/tp-neural.jpg") 85% 40%/cover no-repeat;box-shadow:var(--shadow)}
+.hm-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(7,20,34,.97) 0%,rgba(7,20,34,.88) 36%,rgba(7,20,34,.35) 68%,rgba(7,20,34,.08)),linear-gradient(180deg,rgba(7,20,34,0) 50%,rgba(7,20,34,.7))}
+.hm-hero-body{max-width:56%;display:grid;gap:8px;justify-items:start}
+.hm-hero h2{margin:2px 0 0;font-size:46px;line-height:1;font-weight:400;text-shadow:0 4px 18px rgba(0,0,0,.6)}
+.hm-hero-meta{margin:0;font-size:22px;color:#dfe3e8}
+.hm-progress{display:flex;align-items:center;gap:14px;width:100%;margin:8px 0 10px;font-family:Inter,system-ui,sans-serif;font-size:14px;color:#cfd5dc;white-space:nowrap}
+.hm-bar{flex:1 1 auto;height:6px;border-radius:999px;background:rgba(175,191,203,.25);overflow:hidden}
+.hm-bar span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#f6c47b,#ffe4b5);box-shadow:0 0 10px rgba(255,214,150,.55)}
+.hm-cta{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 28px 0 22px;border:0;border-radius:999px;background:linear-gradient(180deg,#ffe0ad,#f6c47b);color:#101010!important;font-size:21px!important;box-shadow:0 8px 24px rgba(246,196,123,.3);transition:transform .2s,box-shadow .2s}
+.hm-cta:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(246,196,123,.45)}
+.hm-cta svg{width:20px;height:20px;fill:#101010;stroke:#101010!important}
+.hm-save{position:absolute;top:18px;right:18px;width:46px;height:46px;display:grid;place-items:center;border:1px solid rgba(255,220,160,.45);border-radius:50%;background:rgba(7,20,34,.6);backdrop-filter:blur(6px);color:#ffe0ad!important;transition:background .2s,transform .2s}
+.hm-save:hover{background:rgba(7,20,34,.85);transform:scale(1.05)}
+.hm-save svg{width:20px;height:20px}
+.hm-save[aria-pressed="true"] svg{fill:#ffe0ad}
+
+/* buddy */
+.hm-buddy{position:relative;overflow:hidden;display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;align-items:center;padding:22px 26px 22px 18px;border:1px solid var(--line);border-radius:26px;background:radial-gradient(260px 200px at 12% 50%,rgba(255,198,116,.16),transparent 70%),linear-gradient(145deg,rgba(16,35,53,.94),rgba(6,17,28,.86));box-shadow:0 18px 48px rgba(0,0,0,.42)}
+.hm-buddy>*{min-width:0}
+.hm-robot{height:150px;background:var(--robot) center/contain no-repeat;filter:drop-shadow(0 0 22px rgba(255,198,116,.55));animation:hm-float 4s ease-in-out infinite}
+@keyframes hm-float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(-2deg)}}
+.hm-buddy-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.hm-time{font-family:Inter,system-ui,sans-serif;font-size:13px;color:#8f9aa6}
+.hm-time:before{content:"• ";color:#6d7885}
+.hm-say{margin:0 0 16px;font-size:28px;line-height:1.18;color:#f6efe2}
+.hm-buddy-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.hm-btn-line{display:inline-flex;align-items:center;gap:9px;min-height:46px;padding:0 20px 0 16px;border:1px solid var(--line);border-radius:999px;background:rgba(255,224,173,.08);font-size:19px!important;color:#ffe0ad!important;transition:background .2s,border-color .2s}
+.hm-btn-line:hover{background:rgba(255,224,173,.16);border-color:#ffe0ad}
+.hm-btn-line svg{width:18px;height:18px;fill:#ffe0ad;stroke:none!important}
+.hm-note{font-family:Inter,system-ui,sans-serif;font-size:14px;color:#9fa9b4}
+
+/* section heads */
+.hm-sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.hm-sec-head>div{min-width:0}
+.hm-sec-head h2{margin:0;font-size:36px;line-height:1.15;font-weight:400}
+.hm-sec-head p{margin:4px 0 0;font-family:Inter,system-ui,sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#b5bec8}
+.hm-pill{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 18px;border:1px solid rgba(190,207,222,.38);border-radius:999px;background:rgba(11,27,42,.72);font-size:17px!important;white-space:nowrap;transition:border-color .2s,background .2s}
+.hm-pill:hover{border-color:rgba(255,220,160,.7);background:rgba(20,40,59,.9)}
+.hm-pill svg{width:17px;height:17px;color:#ffe0ad}
+
+/* today timeline */
+.hm-timeline{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.hm-timeline li{display:grid;grid-template-columns:62px 18px minmax(0,1fr);gap:12px;align-items:center;position:relative}
+.hm-when{text-align:right;line-height:1}
+.hm-when b{display:block;font-size:26px;font-weight:400}
+.hm-when span{display:block;margin-top:5px;font-family:Inter,system-ui,sans-serif;font-size:12px;letter-spacing:.14em;color:#aeb8c4}
+.hm-rail{position:relative;align-self:stretch;display:grid;place-items:center}
+.hm-rail:before{content:"";position:absolute;top:0;bottom:-12px;left:50%;width:1px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(255,220,160,.5),rgba(255,220,160,.15))}
+.hm-timeline li:first-child .hm-rail:before{top:50%}
+.hm-timeline li:last-child .hm-rail:before{bottom:50%}
+.hm-rail:after{content:"";position:relative;width:11px;height:11px;border-radius:50%;background:#0b1a2a;border:2px solid rgba(255,220,160,.6)}
+.is-next .hm-rail:after{background:#ffe0ad;border-color:#ffe0ad;box-shadow:0 0 0 4px rgba(255,224,173,.18),0 0 14px rgba(255,214,150,.7)}
+.hm-lec{display:flex;align-items:center;gap:14px;width:100%;min-width:0;padding:12px 14px 12px 12px;border:1px solid rgba(156,179,197,.25);border-radius:18px;background:rgba(20,40,59,.74);text-align:left;transition:border-color .2s,background .2s,transform .2s}
+.hm-lec:hover{border-color:rgba(255,220,160,.6);background:rgba(24,46,67,.9);transform:translateX(2px)}
+.is-next .hm-lec{border-color:rgba(255,220,160,.5);background:linear-gradient(90deg,rgba(255,224,173,.1),rgba(20,40,59,.74) 60%)}
+.hm-cover{position:relative;display:block;overflow:hidden;flex:0 0 auto}
+.hm-cover .thumb{position:absolute;inset:0;width:auto;height:auto;border:0;border-radius:0;box-shadow:none;transform:scale(1.2)}
+.hm-lec .hm-cover{width:78px;height:54px;border-radius:12px;border:1px solid rgba(255,220,160,.3)}
+.hm-lec-main{flex:1 1 auto;min-width:0;display:grid;gap:3px}
+.hm-lec-title{font-size:23px;line-height:1.1}
+.hm-lec-sub{font-size:18px;line-height:1.2;color:#c8ced5}
+.hm-live,.hm-tag{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:600;white-space:nowrap}
+.hm-live{background:rgba(255,224,173,.16);border:1px solid rgba(255,224,173,.55);color:#ffe0ad}
+.hm-live i{width:7px;height:7px;border-radius:50%;background:#ffe0ad;animation:hm-ping-g 2s ease-out infinite}
+@keyframes hm-ping-g{0%{box-shadow:0 0 0 0 rgba(255,224,173,.6)}70%,100%{box-shadow:0 0 0 7px rgba(255,224,173,0)}}
+.hm-tag{border:1px solid rgba(190,207,222,.35);color:#d4dbe2}
+.hm-chev{flex:0 0 auto;width:22px;height:22px;color:#ffe0ad}
+
+/* coming up */
+.hm-up-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.hm-up{display:grid;grid-template-columns:62px minmax(0,1fr) 22px;align-items:center;gap:14px;width:100%;padding:12px 14px;border:1px solid rgba(156,179,197,.25);border-radius:18px;background:rgba(20,40,59,.74);text-align:left;transition:border-color .2s,background .2s,transform .2s}
+.hm-up:hover{border-color:rgba(255,220,160,.6);background:rgba(24,46,67,.9);transform:translateX(2px)}
+.hm-up.is-moved{border-color:rgba(255,125,98,.45)}
+.hm-day{display:grid;justify-items:center;gap:2px;padding:7px 0;border:1px solid rgba(255,220,160,.3);border-radius:12px;background:rgba(255,224,173,.1)}
+.hm-day b{font-size:26px;font-weight:400;line-height:1}
+.hm-day span{font-family:Inter,system-ui,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c2cad2}
+.hm-up-main{display:grid;gap:5px;min-width:0}
+.hm-up-title{font-size:22px;line-height:1.15;overflow-wrap:anywhere}
+.hm-up-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-family:Inter,system-ui,sans-serif;font-size:14px;color:#aeb8c4}
+.hm-up-meta .cal-tag{padding:3px 9px;border-radius:999px;font-size:12px}
+.hm-moved{display:flex;align-items:center;gap:6px;font-family:Inter,system-ui,sans-serif;font-size:13px;color:#ffb9aa}
+.hm-moved:before{content:"";width:6px;height:6px;border-radius:50%;background:#ff7d62}
+.hm-empty{padding:16px;border:1px dashed rgba(156,179,197,.3);border-radius:18px;color:#aeb8c4;font-family:Inter,system-ui,sans-serif;font-size:15px;text-align:center}
+
+/* classes */
+.hm-classes{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
+.hm-class{display:flex;flex-direction:column;min-width:0;padding:0;overflow:hidden;border:1px solid rgba(156,179,197,.25);border-radius:18px;background:rgba(20,40,59,.74);text-align:left;transition:border-color .2s,transform .2s,box-shadow .2s}
+.hm-class:hover{border-color:rgba(255,220,160,.6);transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.4)}
+.hm-class .hm-cover{width:100%;aspect-ratio:16/11;border-bottom:1px solid rgba(255,220,160,.25)}
+.hm-class:hover .thumb{transform:scale(1.28)}
+.hm-cover .thumb{transition:transform .4s ease}
+.hm-class-body{flex:1 1 auto;display:flex;flex-direction:column;gap:4px;padding:11px 13px 13px}
+.hm-class-title{font-size:20px;line-height:1.12}
+.hm-class-code{font-family:Inter,system-ui,sans-serif;font-size:12px;letter-spacing:.06em;color:#aeb8c4}
+.hm-class-prog{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px}
+.hm-class-prog .hm-bar{height:4px}
+.hm-class-prog b{font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:600;color:#ffe0ad}
+
+/* entrance */
+#home.active .hm-in{animation:hm-up .5s cubic-bezier(.2,.8,.2,1) both}
+#home.active .hm-in:nth-child(2){animation-delay:.05s}
+#home.active .hm-in:nth-child(3){animation-delay:.1s}
+#home.active .hm-in:nth-child(4){animation-delay:.15s}
+#home.active .hm-in:nth-child(5){animation-delay:.2s}
+#home.active .hm-in:nth-child(6){animation-delay:.25s}
+@keyframes hm-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#home .hm-in,.hm-robot,.hm-dot,.hm-live i{animation:none!important}}
+
+/* phones */
+@media(max-width:560px){
+  .hm{gap:24px}
+  .hm-eyebrow,.hm-date{font-size:11px;letter-spacing:.2em}
+  .hm-date{margin-bottom:6px}
+  .hm-head{gap:12px;padding-top:2px}
+  .hm-head h1{font-size:clamp(29px,8.6vw,36px)}
+  .hm-sub{margin-top:12px;font-size:14px;gap:8px 10px}
+  .hm-update{min-height:32px;padding:0 12px 0 10px;font-size:13px!important;gap:6px}
+  .hm-update svg{width:15px;height:15px}
+  .hm-avatar{width:46px;height:46px;font-size:16px}
+  .hm-streak{right:-7px;bottom:-5px;font-size:10px;padding:2px 5px 2px 4px}
+  .hm-hero{min-height:268px;padding:16px;border-radius:22px;background-position:70% 30%}
+  .hm-hero:before{background:linear-gradient(180deg,rgba(7,20,34,.12),rgba(7,20,34,.6) 30%,rgba(7,20,34,.97) 62%)}
+  .hm-hero-body{max-width:none;gap:6px}
+  .hm-hero h2{font-size:clamp(27px,8.4vw,32px)}
+  .hm-hero-meta{font-size:15px}
+  .hm-progress{font-size:12px;margin:4px 0 8px;gap:10px}
+  .hm-cta{min-height:44px;padding:0 20px 0 16px;font-size:17px!important;gap:9px}
+  .hm-cta svg{width:16px;height:16px}
+  .hm-save{top:12px;right:12px;width:38px;height:38px}
+  .hm-save svg{width:17px;height:17px}
+  .hm-buddy{grid-template-columns:78px minmax(0,1fr);gap:12px;padding:14px 14px 14px 10px;border-radius:22px}
+  .hm-robot{height:84px}
+  .hm-buddy-top{margin-bottom:5px}
+  .hm-time{font-size:11px}
+  .hm-say{font-size:18px;line-height:1.22;margin-bottom:12px}
+  .hm-btn-line{min-height:38px;padding:0 14px 0 12px;font-size:15px!important;gap:7px}
+  .hm-btn-line svg{width:14px;height:14px}
+  .hm-note{font-size:12px}
+  .hm-sec-head{margin-bottom:10px}
+  .hm-sec-head h2{font-size:26px}
+  .hm-sec-head p{font-size:11px;letter-spacing:.16em;margin-top:3px}
+  .hm-pill{min-height:34px;padding:0 13px;font-size:14px!important;gap:6px}
+  .hm-pill svg{width:15px;height:15px}
+  .hm-timeline{gap:10px}
+  .hm-timeline li{grid-template-columns:44px 12px minmax(0,1fr);gap:8px}
+  .hm-rail:before{bottom:-10px}
+  .hm-when b{font-size:18px}
+  .hm-when span{font-size:10px;margin-top:3px}
+  .hm-rail:after{width:9px;height:9px}
+  .hm-lec{gap:10px;padding:10px;border-radius:16px}
+  .hm-lec .hm-cover{width:46px;height:38px;border-radius:10px}
+  .hm-lec-title{font-size:17px}
+  .hm-lec-sub{font-size:13px}
+  .hm-live,.hm-tag{padding:4px 8px;font-size:11px;gap:5px}
+  .hm-tag{display:none}
+  .hm-chev{width:16px;height:16px}
+  .hm-up{grid-template-columns:48px minmax(0,1fr) 16px;gap:10px;padding:10px;border-radius:16px}
+  .hm-day{padding:5px 0;border-radius:10px}
+  .hm-day b{font-size:21px}
+  .hm-day span{font-size:9px;letter-spacing:.1em}
+  .hm-up-title{font-size:17px}
+  .hm-up-meta{font-size:12px;gap:5px 8px}
+  .hm-up-meta .cal-tag{font-size:10.5px;padding:2px 7px}
+  .hm-moved{font-size:11.5px}
+  .hm-classes{gap:10px}
+  .hm-class{border-radius:16px}
+  .hm-class-body{padding:9px 11px 11px}
+  .hm-class-title{font-size:17px}
+  .hm-class-code{font-size:11px}
+}
+@media(max-width:360px){
+  .hm-live{display:none}
+  .hm-classes{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
 </head>
 <body>
 <main class="phone"><div class="screen"><div class="status"><span>9:41</span><span class="island"></span><div class="icons"><div class="bars"><span></span><span></span><span></span></div><div class="wifi"></div><div class="battery"></div></div></div>
-<section id="home" class="view active"><header class="home-head"><div><h1>Good evening,</h1><p>2 lectures today &bull; <button class="update-link" id="updateBtn" type="button" aria-haspopup="dialog">1 class update<span class="update-dot" aria-hidden="true"></span></button></p></div><div class="avatar"></div></header><div class="stack"><section class="card continue"><button class="thumb neuro lecture-btn" data-course="cs" aria-label="Open Neural Networks"></button><div><div class="eyebrow">Continue Learning</div><h2>Neural Networks</h2><div class="meta">CS 101 &bull; Lecture 5</div><div class="progress"><div class="bar"><span style="width:47%"></span></div><div class="left">32 min left</div></div><button class="primary lecture-btn" data-course="cs"><span class="play"></span>Continue Lecture</button></div><div class="save"></div></section><section class="card buddy"><div class="robot"></div><div><div class="eyebrow">Syllabuddy</div><h2>I remembered your last lecture on neural networks - want a quick recap?</h2><button class="outline" id="recapBtn" type="button" aria-haspopup="dialog">Get a Quick Recap &rarr;</button></div><div class="notes"></div></section><section><div class="section-title"><h2>Today</h2><span>Your Lectures</span><span class="spacer"></span><button class="small-btn" id="homeCalBtn" type="button">View Calendar &rsaquo;</button></div><div class="lecture lecture-btn" data-course="bio"><div class="time">10:00<span>AM</span></div><div class="thumb bio"></div><div><h3>Biology</h3><p>Genetics and Evolution</p></div><div class="tag">In 20 min</div><div class="chev">&rsaquo;</div></div><div class="lecture lecture-btn" data-course="cs"><div class="time">2:00<span>PM</span></div><div class="thumb cs"></div><div><h3>Computer Science</h3><p>Neural Networks</p></div><div class="tag">Lecture 5</div><div class="chev">&rsaquo;</div></div></section><section><div class="section-title"><h2>Memory</h2><span>Your Lectures Over Time</span><span class="spacer"></span><button class="small-btn">See All &rsaquo;</button></div><div class="memory-grid"><button class="memory-item" data-course="bio"><div class="thumb plant"></div><h3>Biology</h3><p>12 lectures</p></button><button class="memory-item" data-course="econ"><div class="thumb chess"></div><h3>Game Theory</h3><p>8 lectures</p></button><button class="memory-item" data-course="hist"><div class="thumb ren"></div><h3>Renaissance</h3><p>6 lectures</p></button><button class="memory-item" data-course="cs"><div class="thumb neuro"></div><h3>Neural Networks</h3><p>10 lectures</p></button></div></section><section><div class="section-title"><h2>Class</h2><span>The Whole Class, Captured</span><span class="spacer"></span><button class="small-btn lecture-btn" data-course="cs">View Class &rsaquo;</button></div><div class="class-row"><button class="class-card lecture-btn" data-course="bio"><div class="bubble">B</div><div><h3>Biology</h3><p>Genetics path</p></div></button><button class="class-card lecture-btn" data-course="cs"><div class="bubble">CS</div><div><h3>Computer Science</h3><p>Neural Networks</p></div></button><button class="class-card lecture-btn" data-course="hist"><div class="bubble">H</div><div><h3>History</h3><p>Renaissance unit</p></div></button></div></section></div></section>
+<section id="home" class="view active"><div class="hm">
+<header class="hm-head hm-in">
+  <div>
+    <p class="hm-date">Thursday, October 1</p>
+    <h1>Good morning, <em>Andrew</em></h1>
+    <div class="hm-sub"><span>2 lectures today</span><button class="hm-update" id="updateBtn" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>1 class update<span class="hm-dot" aria-hidden="true"></span></button></div>
+  </div>
+  <div class="hm-avatar" role="img" aria-label="Andrew, 7 day study streak">AR<span class="hm-streak" aria-hidden="true"><svg viewBox="0 0 24 28"><path fill="#ff9a2e" d="M12 1c1 4 6 7 6 14a6 6 0 0 1-12 0c0-3 1.5-5 3-6.5 0 2 1 3.5 2.5 4C11 9 10 5 12 1Z"/><path fill="#ffe7a8" d="M12 15c1.2 1.4 2.5 2.4 2.5 4.3a2.5 2.5 0 0 1-5 0c0-1.6 1.3-2.6 2.5-4.3Z"/></svg>7</span></div>
+</header>
+
+<section class="hm-hero hm-in" aria-labelledby="hmContTitle">
+  <button class="hm-save" type="button" aria-pressed="false" aria-label="Save Neural Networks lecture"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg></button>
+  <div class="hm-hero-body">
+    <p class="hm-eyebrow">Continue learning</p>
+    <h2 id="hmContTitle">Neural Networks</h2>
+    <p class="hm-hero-meta">CS 101 &bull; Lecture 5: Perceptrons</p>
+    <div class="hm-progress"><div class="hm-bar" role="progressbar" aria-label="Lecture progress" aria-valuenow="47" aria-valuemin="0" aria-valuemax="100"><span style="width:47%"></span></div><span>32 min left</span></div>
+    <button class="hm-cta lecture-btn" data-course="cs" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Continue lecture</button>
+  </div>
+</section>
+
+<section class="hm-buddy hm-in" aria-label="Recap from Syllabuddy">
+  <div class="hm-robot" aria-hidden="true"></div>
+  <div class="hm-buddy-body">
+    <div class="hm-buddy-top"><span class="hm-eyebrow">Syllabuddy</span><span class="hm-time">just now</span></div>
+    <p class="hm-say">I remembered your last lecture on neural networks. Want a quick recap?</p>
+    <div class="hm-buddy-actions"><button class="hm-btn-line" id="recapBtn" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.5 4.7 3.8 8 8.5 8.5-4.7.5-8 3.8-8.5 8.5-.5-4.7-3.8-8-8.5-8.5 4.7-.5 8-3.8 8.5-8.5z"/></svg>Get a quick recap</button><span class="hm-note">8 slides &bull; 1 min</span></div>
+  </div>
+</section>
+
+<section class="hm-sec hm-in" aria-labelledby="hmToday">
+  <div class="hm-sec-head"><div><h2 id="hmToday">Today</h2><p>2 lectures</p></div><button class="hm-pill" id="homeCalBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button></div>
+  <ol class="hm-timeline">
+    <li class="is-next"><div class="hm-when"><b>10:00</b><span>AM</span></div><span class="hm-rail" aria-hidden="true"></span><button class="hm-lec lecture-btn" data-course="bio" type="button"><span class="hm-cover"><span class="thumb bio"></span></span><span class="hm-lec-main"><span class="hm-lec-title">Biology</span><span class="hm-lec-sub">Genetics and Evolution</span></span><span class="hm-live"><i aria-hidden="true"></i>In 20 min</span><svg class="hm-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></li>
+    <li><div class="hm-when"><b>2:00</b><span>PM</span></div><span class="hm-rail" aria-hidden="true"></span><button class="hm-lec lecture-btn" data-course="cs" type="button"><span class="hm-cover"><span class="thumb cs"></span></span><span class="hm-lec-main"><span class="hm-lec-title">Computer Science</span><span class="hm-lec-sub">Neural Networks</span></span><span class="hm-tag">Lecture 5</span><svg class="hm-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></li>
+  </ol>
+</section>
+
+<section class="hm-sec hm-in" aria-labelledby="hmUp">
+  <div class="hm-sec-head"><div><h2 id="hmUp">Coming up</h2><p id="hmUpCount">Next 7 days</p></div><button class="hm-pill" id="hmUpAll" type="button">See all</button></div>
+  <ul class="hm-up-list" id="hmUpcoming"></ul>
+</section>
+
+<section class="hm-sec hm-in" aria-labelledby="hmClasses">
+  <div class="hm-sec-head"><div><h2 id="hmClasses">Your classes</h2><p>4 classes this term</p></div></div>
+  <div class="hm-classes">
+    <button class="hm-class" data-course="cs" type="button"><span class="hm-cover"><span class="thumb neuro"></span></span><span class="hm-class-body"><span class="hm-class-title">Neural Networks</span><span class="hm-class-code">CS 101</span><span class="hm-class-prog"><span class="hm-bar"><span style="width:43%"></span></span><b>43%</b></span></span></button>
+    <button class="hm-class" data-course="bio" type="button"><span class="hm-cover"><span class="thumb plant"></span></span><span class="hm-class-body"><span class="hm-class-title">Biology</span><span class="hm-class-code">BIO 201</span><span class="hm-class-prog"><span class="hm-bar"><span style="width:55%"></span></span><b>55%</b></span></span></button>
+    <button class="hm-class" data-course="econ" type="button"><span class="hm-cover"><span class="thumb chess"></span></span><span class="hm-class-body"><span class="hm-class-title">Game Theory</span><span class="hm-class-code">ECON 310</span><span class="hm-class-prog"><span class="hm-bar"><span style="width:41%"></span></span><b>41%</b></span></span></button>
+    <button class="hm-class" data-course="hist" type="button"><span class="hm-cover"><span class="thumb ren"></span></span><span class="hm-class-body"><span class="hm-class-title">Renaissance</span><span class="hm-class-code">HIST 220</span><span class="hm-class-prog"><span class="hm-bar"><span style="width:44%"></span></span><b>44%</b></span></span></button>
+  </div>
+</section>
+</div></section>
 <section id="classView" class="view class-view"><header class="cv-hero"><button class="cv-back" id="backBtn" aria-label="Back to home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><h1 id="classTitle">Neural Networks</h1><p class="cv-sub" id="classSub">CS 101 &bull; Lecture 5</p><div class="cv-progress-row"><div class="cv-progress"><div class="cv-bar" role="progressbar" aria-label="Class progress" aria-valuemin="0" aria-valuemax="100"><span id="classBar" style="width:43%"></span></div><div class="cv-progress-meta"><span id="classDone">18 of 42 exercises completed</span><strong id="classPct">43%</strong></div></div><div class="cv-streak"><svg viewBox="0 0 24 28" aria-hidden="true"><defs><linearGradient id="flameG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".6" stop-color="#ff9a2e"/><stop offset="1" stop-color="#ffd36b"/></linearGradient></defs><path fill="url(#flameG)" d="M12 1c1 4 6 7 6 14a6 6 0 0 1-12 0c0-3 1.5-5 3-6.5 0 2 1 3.5 2.5 4C11 9 10 5 12 1Z"/><path fill="#ffe7a8" d="M12 15c1.2 1.4 2.5 2.4 2.5 4.3a2.5 2.5 0 0 1-5 0c0-1.6 1.3-2.6 2.5-4.3Z"/></svg><span>7 day<br/>streak</span></div></div></header><div class="cv-main"><div class="cv-units" id="units"></div><aside class="cv-side" aria-label="Class tools"><button class="cv-side-card"><img src="assets/cv-notes.png" alt=""/><h3>Exam Notes</h3><p>Key concepts to remember</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button><button class="cv-side-card" id="classCalBtn"><svg class="cv-cal" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="8" cy="14" r=".6"/><circle cx="12" cy="14" r=".6"/><circle cx="16" cy="14" r=".6"/><circle cx="8" cy="17.5" r=".6"/><circle cx="12" cy="17.5" r=".6"/></svg><h3>Calendar</h3><p id="classCalCount">2 upcoming deadlines</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button><button class="cv-side-card" id="classAiBtn"><img src="assets/cv-ai.png" alt=""/><h3>Class AI</h3><p>Your study assistant</p><span class="cv-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button></aside></div></section>
 <section id="exerciseView" class="view exercise-view" aria-labelledby="exTitle"><header class="ex-hero"><div class="ex-hero-left"><button class="cv-back" id="exBack" aria-label="Back to class path"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><h1 id="exTitle">Neural Networks</h1><p class="cv-sub" id="exSub">Unit 2 &bull; Perceptrons</p></div><div class="ex-hero-right"><button class="ex-icon-btn" aria-label="All exercises in this unit"><svg class="ex-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9h1M8 12h1M8 15h1M11.5 9H16M11.5 12H16M11.5 15H16"/></svg></button><div class="cv-streak"><svg viewBox="0 0 24 28" aria-hidden="true"><defs><linearGradient id="flameG2" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".6" stop-color="#ff9a2e"/><stop offset="1" stop-color="#ffd36b"/></linearGradient></defs><path fill="url(#flameG2)" d="M12 1c1 4 6 7 6 14a6 6 0 0 1-12 0c0-3 1.5-5 3-6.5 0 2 1 3.5 2.5 4C11 9 10 5 12 1Z"/><path fill="#ffe7a8" d="M12 15c1.2 1.4 2.5 2.4 2.5 4.3a2.5 2.5 0 0 1-5 0c0-1.6 1.3-2.6 2.5-4.3Z"/></svg><span>7 day<br/>streak</span></div></div></header><ol class="ex-steps" id="exSteps" aria-label="Exercise progress"></ol><p class="ex-step-label" id="exStepLabel"></p><section class="ex-coach" id="exCoach" aria-live="polite"></section><div class="ex-main"><section class="ex-card" id="exCard" aria-label="Current exercise"></section><aside class="ex-side" aria-label="Class tools"><button class="ex-side-card"><img src="assets/cv-notes.png" alt=""/><h3>Exam<br/>Notes</h3><svg class="ex-ico ch" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><button class="ex-side-card" id="exCalBtn"><svg class="ex-ico si" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="8" cy="14" r=".6"/><circle cx="12" cy="14" r=".6"/><circle cx="16" cy="14" r=".6"/><circle cx="8" cy="17.5" r=".6"/><circle cx="12" cy="17.5" r=".6"/></svg><h3>Class<br/>Calendar</h3><svg class="ex-ico ch" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><button class="ex-side-card" id="exerciseAiBtn"><img src="assets/cv-ai.png" alt=""/><h3>Ask<br/>Class AI</h3></button></aside></div><div class="ex-info" id="exInfo"></div><div class="ex-cta-wrap"><button class="ex-cta" id="exCta" type="button"></button></div></section>
 <section id="aiView" class="view ai-view" aria-labelledby="aiTitle"><div class="ai-shell"><header class="ai-hero"><div class="ai-hero-text"><div class="eyebrow">Syllabuddy AI</div><h1 id="aiTitle">Ask from lecture memory</h1></div><div class="ai-mascot" aria-hidden="true"></div><p class="ai-hero-desc">Answers are grounded only in recorded lecture notes for the selected class. If the class memory does not contain it, Syllabuddy says so.</p></header><div class="ai-tabs" id="aiTabs" role="tablist" aria-label="Choose a class"></div><section class="ai-chat" aria-label="Chat with Syllabuddy"><div class="ai-class-meta"><span class="ai-class-name" id="aiClassTitle">Neural Networks</span><span class="ai-memory-pill" id="aiMemoryPill">3 lectures indexed</span></div><div class="ai-messages" id="aiMessages" role="log" aria-live="polite" tabindex="0" aria-label="Conversation"></div><div class="ai-suggest"><div class="eyebrow">Try asking</div><div class="ai-prompts" id="aiPrompts"></div></div><form class="ai-form" id="aiForm"><textarea class="ai-input" id="aiInput" rows="1" placeholder="Ask about this class..." aria-label="Ask about this class" autocomplete="off"></textarea><button class="ai-send" id="aiSend" type="submit" aria-label="Ask" disabled><span>Ask</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></form><p class="ai-rule"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6Z"/><path d="m9 12 2 2 4-4"/></svg><span>Grounding rule: this demo only uses lecture-memory snippets for the selected class, not the open internet or general model knowledge.</span></p></section></div></section>
@@ -1038,6 +1291,30 @@ cdAction.addEventListener('click',()=>{const c=libFind(cdId);if(c.mine){classDia
 pubBack.addEventListener('click',()=>showLibrary());
 pubList.addEventListener('click',e=>{const b=e.target.closest('[data-pick]');if(!b)return;LIB.pick=LIB.pick===b.dataset.pick?null:b.dataset.pick;renderPublish();pubList.querySelector(`[data-pick="${b.dataset.pick}"]`)?.focus()});
 pubCta.addEventListener('click',()=>{const k=LIB.pick;if(!k)return;LIB.q='';libInput.value='';showLibrary({notice:setPublished(k,!LIB.published.has(k))})});
+</script>
+
+<script>
+/* ---------- Home (v2): coming-up list, save toggle ---------- */
+(()=>{
+const homeEl=document.getElementById('home'),upList=document.getElementById('hmUpcoming'),upCount=document.getElementById('hmUpCount');
+if(!homeEl||!upList)return;
+const chev='<svg class="hm-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+const dayDiff=(a,b)=>{const p=parseYmd(a),q=parseYmd(b);return Math.round((Date.UTC(q.y,q.m-1,q.d)-Date.UTC(p.y,p.m-1,p.d))/864e5)};
+const rel=d=>{const n=dayDiff(DEMO_TODAY,d);if(n===0)return'Today';if(n===1)return'Tomorrow';if(n<7)return DOW_LONG[parseYmd(d).dow];return fmtDay(d)};
+function renderHomeUpcoming(){
+  const ahead=calEvents.filter(e=>dayDiff(DEMO_TODAY,e.date)>=0).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  const week=ahead.filter(e=>dayDiff(DEMO_TODAY,e.date)<7).length;
+  upCount.textContent=week?`${week} in the next 7 days`:'Nothing this week';
+  upList.innerHTML=ahead.slice(0,3).map(e=>{const p=parseYmd(e.date),meta=[data[e.course]?.title,rel(e.date)].filter(Boolean).join(' • ');
+    return`<li><button class="hm-up${e.movedFrom?' is-moved':''}" type="button" data-focus="${esc(e.id)}"><span class="hm-day"><span>${MONTHS[p.m-1].slice(0,3)}</span><b>${p.d}</b><span>${DOW[p.dow]}</span></span><span class="hm-up-main"><span class="hm-up-title">${esc(e.title)}</span><span class="hm-up-meta"><span class="cal-tag ${esc(e.type)}">${esc(CAL_TYPES[e.type]||'Event')}</span><span>${esc(meta)}</span></span>${e.movedFrom?`<span class="hm-moved">Moved from ${esc(fmtDay(e.movedFrom))}</span>`:''}</span>${chev}</button></li>`}).join('')||'<li class="hm-empty">Nothing coming up. Enjoy the free time.</li>';
+}
+upList.addEventListener('click',e=>{const b=e.target.closest('[data-focus]');if(b)showCalendar({from:'home',focus:b.dataset.focus})});
+document.getElementById('hmUpAll').addEventListener('click',()=>showCalendar({from:'home'}));
+const save=homeEl.querySelector('.hm-save');
+save.addEventListener('click',()=>{const on=save.getAttribute('aria-pressed')!=='true';save.setAttribute('aria-pressed',String(on));save.setAttribute('aria-label',on?'Saved. Remove Neural Networks lecture from saved':'Save Neural Networks lecture')});
+new MutationObserver(()=>{if(homeEl.classList.contains('active'))renderHomeUpcoming()}).observe(homeEl,{attributes:true,attributeFilter:['class']});
+renderHomeUpcoming();
+})();
 </script>
 </body>
 </html>
