@@ -1,4 +1,4 @@
-# StudyBuddy v0
+# Syllabuddy
 
 This repo keeps the visual prototype lightweight while the reusable app logic lives in `src/core`.
 v0 can redesign screens freely and call these modules for behavior.

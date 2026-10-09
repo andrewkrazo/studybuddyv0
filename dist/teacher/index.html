@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Aurora | Teacher Portal</title>
+<title>Syllabuddy | Teacher Portal</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23091522'/%3E%3Cpath d='M12 20c7-3 14-3 20 2 6-5 13-5 20-2v26c-7-3-14-3-20 2-6-5-13-5-20-2z' fill='none' stroke='%23f0c27b' stroke-width='3.5' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <style>
 @font-face{font-family:"Cinzel";font-style:normal;font-weight:600;font-display:swap;src:url(../assets/fonts/cinzel-latin-600-normal.woff2) format("woff2")}
@@ -43,7 +43,7 @@ svg.i{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:
   background:linear-gradient(90deg,rgba(9,14,25,.97) 0%,rgba(9,14,25,.93) 52%,rgba(9,14,25,.25) 100%);border-bottom:1px solid var(--line);backdrop-filter:blur(2px)}
 .brand{display:flex;align-items:center;gap:14px;color:var(--gold);text-decoration:none;margin-right:16px;flex:none}
 .brand svg{width:42px;height:42px;stroke-width:1.4}
-.brand b{font:600 23px/1 var(--caps);letter-spacing:.2em;color:#f3d29a}
+.brand b{font:600 21px/1 var(--caps);letter-spacing:.13em;color:#f3d29a}
 .topnav{display:flex;gap:6px;min-width:0}
 .topnav button{display:flex;align-items:center;gap:9px;padding:8px 14px;border-radius:8px;color:var(--soft);font-size:16px;white-space:nowrap;transition:color .15s,background .15s}
 .topnav button svg{font-size:20px}
@@ -443,7 +443,7 @@ td .progress{width:110px;display:inline-block;vertical-align:middle;margin-right
   .side-item{width:auto;flex:none;padding:8px 12px}
   .main{grid-column:1;padding:14px 16px 30px}
   body.has-bar .main{padding-bottom:150px}
-  .topbar{gap:10px;padding:0 12px}.brand b{font-size:19px}.brand svg{width:34px;height:34px}.topnav{display:none}.profile-btn .nm{display:none}
+  .topbar{gap:10px;padding:0 12px}.brand b{font-size:16px;letter-spacing:.1em}.brand svg{width:34px;height:34px}.topnav{display:none}.profile-btn .nm{display:none}
   .page-title{font-size:42px}.page-sub{font-size:17px}.vh .page-title{font-size:40px}
   .panels,.cg-right,.fgrid,.vids,.grid4{grid-template-columns:minmax(0,1fr)}
   .stepper{gap:8px}.step{gap:8px;font-size:15px}.step .n{width:30px;height:30px}
@@ -464,7 +464,7 @@ td .progress{width:110px;display:inline-block;vertical-align:middle;margin-right
   <div class="hero-art" aria-hidden="true"></div>
 
   <header class="topbar">
-    <a class="brand" href="#create" data-act="nav" data-view="portal" aria-label="Aurora teacher portal home"><i data-i="logo"></i><b>AURORA</b></a>
+    <a class="brand" href="#create" data-act="nav" data-view="portal" aria-label="Syllabuddy teacher portal home"><i data-i="logo"></i><b>SYLLABUDDY</b></a>
     <nav class="topnav" aria-label="Main">
       <button data-act="nav" data-view="classes" data-top="classes"><i data-i="courses"></i><span>Courses</span></button>
       <button data-act="nav" data-view="uploads" data-top="uploads"><i data-i="cloud"></i><span>Uploads</span></button>
@@ -475,7 +475,7 @@ td .progress{width:110px;display:inline-block;vertical-align:middle;margin-right
     <div class="profile">
       <button class="profile-btn" data-act="profile" aria-haspopup="menu" aria-expanded="false"><span class="avatar" data-avatar>EP</span><span class="nm" data-profname>Prof. Elena Park</span><i data-i="chev"></i></button>
       <div class="menu" id="profileMenu" role="menu">
-        <div class="who"><b data-profname>Prof. Elena Park</b><span>Computer Science · Aurora University</span></div>
+        <div class="who"><b data-profname>Prof. Elena Park</b><span>Computer Science · Brown University</span></div>
         <button role="menuitem" data-act="nav" data-view="settings"><i data-i="user"></i>Profile &amp; settings</button>
         <a role="menuitem" href="../index.html" target="_blank" rel="noopener"><i data-i="phone"></i>Open the student app</a>
         <button role="menuitem" data-act="reset"><i data-i="refresh"></i>Reset demo</button>
@@ -559,7 +559,7 @@ td .progress{width:110px;display:inline-block;vertical-align:middle;margin-right
             </section>
 
             <section class="panel span2" id="pVideos">
-              <h2 class="panel-h"><i data-i="play"></i>Lecture Videos / Audio Recordings <span class="tip" tabindex="0" data-tip="Upload MP4, MOV, M4A or MP3. Study Buddy transcribes each recording so students can search and quiz themselves on it."><i data-i="help"></i></span></h2>
+              <h2 class="panel-h"><i data-i="play"></i>Lecture Videos / Audio Recordings <span class="tip" tabindex="0" data-tip="Upload MP4, MOV, M4A or MP3. Syllabuddy transcribes each recording so students can search and quiz themselves on it."><i data-i="help"></i></span></h2>
               <div class="vids" id="vidBox"></div>
             </section>
 
@@ -638,7 +638,7 @@ td .progress{width:110px;display:inline-block;vertical-align:middle;margin-right
       <div><b>3</b><span>Preview the student view, then press <em>Publish to Library</em>.</span></div>
     </div>
     <details><summary>Who can see my class?</summary><p>Students at your school see it in Search Classes. Turn off “Show in Popular at my school” in Settings to keep it unlisted.</p></details>
-    <details><summary>What does Study Buddy do with my files?</summary><p>It reads your notes, slides and transcripts so it can answer student questions and build quizzes. Every answer links back to the source file.</p></details>
+    <details><summary>What does Syllabuddy do with my files?</summary><p>It reads your notes, slides and transcripts so it can answer student questions and build quizzes. Every answer links back to the source file.</p></details>
     <details><summary>Can I update a class after publishing?</summary><p>Yes. Add files any time and press Update Listing. Students get a notification about new material.</p></details>
     <details><summary>Which file types work?</summary><p>Video: MP4, MOV. Audio: MP3, M4A. Documents: PDF, DOCX, PPT, PPTX, ZIP.</p></details>
   </div>
@@ -726,7 +726,7 @@ const ring = (p, small) => small
 /* ---------------- state ---------------- */
 const DEFAULTS = () => ({
   title:'Neural Networks', code:'CS 101', school:'Computer Science', section:'Lecture 5', prof:'Dr. Elena Park',
-  bio:'Dr. Elena Park is a machine learning researcher and professor at Aurora University. Her research focuses on deep learning, AI alignment, and human–AI collaboration.',
+  bio:'Dr. Elena Park is a machine learning researcher and professor at Brown University. Her research focuses on deep learning, AI alignment, and human–AI collaboration.',
   cover:'../assets/tp-neural.jpg',
   syllabus:{id:uid(), name:'CS101_Syllabus_Fall2024.pdf', size:2.4*MB, done:1},
   videos:[
@@ -743,7 +743,7 @@ const DEFAULTS = () => ({
 });
 let S = DEFAULTS();
 let step = 1;
-const profile = {name:'Prof. Elena Park', email:'elena.park@aurora.edu', dept:'Computer Science'};
+const profile = {name:'Prof. Elena Park', email:'elena.park@university.edu', dept:'Computer Science'};
 const OTHER_CLASSES = [
   {id:'dl', title:'Deep Learning Seminar', code:'CS 241', status:'live', students:412, lectures:18, cover:'../assets/tp-c-dl.jpg', updated:'Sep 28'},
   {id:'ethics', title:'AI Ethics & Society', code:'CS 180', status:'live', students:873, lectures:14, cover:'../assets/tp-c-ethics.jpg', updated:'Sep 30'},
@@ -821,7 +821,7 @@ function libCard(opts={}){
       <h3 class="lib-title">${esc(t)}</h3>
       <div class="lib-row">${ic('book')}<span>${esc(S.code||'—')} <span class="sep">•</span> ${esc(S.school||'—')}</span></div>
       <div class="lib-row"><span class="avatar sm">${esc(initials(S.prof))}</span><span>${esc(S.prof||'Professor')}</span></div>
-      <div class="lib-row">${ic('bank')}<span>Aurora University</span></div>
+      <div class="lib-row">${ic('bank')}<span>Brown University</span></div>
       <div class="lib-foot"><span><span class="pc">${ic('playf')}</span>${plural(S.lectures,'lecture')}</span><span><svg class="lvl" viewBox="0 0 15 14" aria-hidden="true"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="6" y="5" width="3" height="9" rx="1"/><rect x="12" y="0" width="3" height="14" rx="1" class="${S.level==='Intro'?'off':''}"/></svg>${S.level}</span></div>
     </div></article>`;
 }
@@ -957,7 +957,7 @@ function renderPhone(){
     <div class="ph-body">
       <span class="ph-chip">${esc(S.code||'Course')} · ${esc(S.school||'School')}</span>
       <h3 class="ph-title">${esc(S.title.trim()||'Untitled course')}</h3>
-      <div class="ph-prof"><span class="avatar sm">${esc(initials(S.prof))}</span>${esc(S.prof||'Professor')} · Aurora University</div>
+      <div class="ph-prof"><span class="avatar sm">${esc(initials(S.prof))}</span>${esc(S.prof||'Professor')} · Brown University</div>
       <div class="ph-stats"><div><b>${S.lectures}</b><span>lectures</span></div><div><b>${notes.length+(slides?1:0)}</b><span>study files</span></div><div><b>${S.published?'1':'0'}</b><span>students</span></div></div>
       <div class="ph-cta"><button class="btn-gold" data-act="phadd">Add to my classes</button><button class="btn-o" data-act="bookmark" aria-label="Bookmark">${ic('bookmark')}</button></div>
       <div class="ph-tabs" role="tablist">${['lectures','slides','notes','about'].map(t=>`<button role="tab" class="${t===phTab?'on':''}" data-act="phtab" data-tab="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div>
@@ -1023,7 +1023,7 @@ V.portal = () => `
   </div>
   <div class="two">
     <section class="panel"><h2 class="sec-h">${ic('bell')}Recent activity</h2>
-      ${[['users','34 students added Deep Learning Seminar','2 hours ago'],['msg','Study Buddy answered 212 questions from your AI Ethics notes','This week'],['file','Practice quiz for “Attention Is All You Need” was taken 96 times','Yesterday'],['clock','Midterm reminder sent to 412 students in CS 241','Monday']].map(([i,t,s])=>`<div class="act"><span class="ai">${ic(i)}</span><div>${t}<span>${s}</span></div></div>`).join('')}
+      ${[['users','34 students added Deep Learning Seminar','2 hours ago'],['msg','Syllabuddy answered 212 questions from your AI Ethics notes','This week'],['file','Practice quiz for “Attention Is All You Need” was taken 96 times','Yesterday'],['clock','Midterm reminder sent to 412 students in CS 241','Monday']].map(([i,t,s])=>`<div class="act"><span class="ai">${ic(i)}</span><div>${t}<span>${s}</span></div></div>`).join('')}
     </section>
     <section class="panel"><h2 class="sec-h">${ic('chart')}Top classes this week</h2>
       ${[['AI Ethics & Society',92],['Deep Learning Seminar',71],['Machine Learning Lab',18]].map(([n,p])=>`<div class="hbar"><span>${n}</span><b>${p}%</b><div class="progress"><i style="width:${p}%"></i></div></div>`).join('')}
@@ -1076,7 +1076,7 @@ V.analytics = () => `
 function fillAnalytics(){
   const d=AN[anCls]; const val=x=>typeof x==='function'?x(S):x;
   const max=Math.max(...d.w,1); const weeks=['Aug 17','Aug 24','Aug 31','Sep 7','Sep 14','Sep 21','Sep 28','Oct 5'];
-  $('#anBody').innerHTML = `<div class="grid4">${[['users','Active students',d.s],['clock','Study sessions',d.m],['msg','Questions to Study Buddy',d.q],['star','Avg. quiz score',d.a]].map(([i,l,[v,c]])=>`<div class="panel stat"><span>${ic(i)}${l}</span><b>${val(v)}</b><small>${c}${/^[+]/.test(c)?' vs. last month':''}</small></div>`).join('')}</div>
+  $('#anBody').innerHTML = `<div class="grid4">${[['users','Active students',d.s],['clock','Study sessions',d.m],['msg','Questions to Syllabuddy',d.q],['star','Avg. quiz score',d.a]].map(([i,l,[v,c]])=>`<div class="panel stat"><span>${ic(i)}${l}</span><b>${val(v)}</b><small>${c}${/^[+]/.test(c)?' vs. last month':''}</small></div>`).join('')}</div>
    <div class="two"><section class="panel"><h2 class="sec-h">${ic('chart')}Weekly study sessions</h2>
      ${d.w.some(Boolean)?`<div class="chart">${d.w.map(v=>`<div class="col"><span class="v">${v}</span><div class="b" style="height:0" data-h="${v/max*100}%"></div></div>`).join('')}</div><div class="chart-x">${weeks.map(w=>`<span>${w}</span>`).join('')}</div>`:`<p style="color:var(--muted)">${S.published?'Data shows up after the first full week in the library.':'Publish this class to start collecting data.'}</p>`}
    </section><section class="panel"><h2 class="sec-h">${ic('spark')}Most-studied topics</h2>
@@ -1096,7 +1096,7 @@ function fillStudents(){
   const rows=stRows();
   $('#stBody').innerHTML = rows.length ? rows.map(([n,c,p,l,q])=>`<tr><td><div class="who"><span class="avatar">${initials(n)}</span>${n}</div></td><td>${c}</td><td><span class="progress"><i style="width:${p}%"></i></span>${p}%</td><td>${q}%</td><td>${l}</td></tr>`).join('') : `<tr class="empty-row"><td colspan="5">No students match.</td></tr>`;
 }
-const SETTINGS=[['ai','Let Study Buddy answer questions from my materials','Answers always cite the file they came from.',true],['popular','Show my classes in “Popular at my school”','Turn off to keep classes unlisted.',true],['weekly','Email me a weekly summary','Every Monday at 8:00 AM.',true],['dl','Allow students to download slides','Students can always view slides in the app.',false]];
+const SETTINGS=[['ai','Let Syllabuddy answer questions from my materials','Answers always cite the file they came from.',true],['popular','Show my classes in “Popular at my school”','Turn off to keep classes unlisted.',true],['weekly','Email me a weekly summary','Every Monday at 8:00 AM.',true],['dl','Allow students to download slides','Students can always view slides in the app.',false]];
 V.settings = () => `
   <div class="vh"><div class="grow"><h1 class="page-title">Settings</h1><p class="page-sub">Your profile and how your classes behave in the app.</p></div></div>
   <div class="two" style="margin-top:0">
