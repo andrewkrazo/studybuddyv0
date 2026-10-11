@@ -15,9 +15,101 @@ const DEFAULT_EXERCISE_TYPES = [
   "exam-review"
 ];
 
-export function createId(prefix = "id") {
-  const body = Math.random().toString(36).slice(2, 9);
-  return `${prefix}_${Date.now().toString(36)}_${body}`;
+// IDs are plain UUIDs so they fit the uuid primary keys in Postgres.
+// The prefix argument is kept for call-site readability only.
+export function createId(_prefix = "id") {
+  return globalThis.crypto.randomUUID();
+}
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isUuid(value) {
+  return typeof value === "string" && UUID_PATTERN.test(value);
+}
+
+export const COURSE_STATUSES = ["draft", "published"];
+
+const COURSE_TEXT_LIMITS = {
+  name: 120,
+  code: 40,
+  school: 120,
+  section: 40,
+  instructor: 120,
+  instructorBio: 500,
+  term: 60,
+  description: 2000,
+  coverImageUrl: 2048
+};
+
+export class ValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ValidationError";
+  }
+}
+
+// Picks the editable course details out of untrusted input, trimming strings
+// and enforcing length limits. `professor` is accepted as a legacy alias for
+// `instructor` so older callers keep working.
+export function sanitizeCourseDetails(input = {}, { partial = false } = {}) {
+  const source = { ...input };
+  if (source.instructor === undefined && source.professor !== undefined) {
+    source.instructor = source.professor;
+  }
+
+  const details = {};
+  for (const [field, limit] of Object.entries(COURSE_TEXT_LIMITS)) {
+    if (source[field] === undefined) {
+      if (!partial) details[field] = "";
+      continue;
+    }
+    if (source[field] !== null && typeof source[field] !== "string") {
+      throw new ValidationError(`${field} must be text.`);
+    }
+    const value = normalizeWhitespace(source[field] ?? "");
+    if (value.length > limit) {
+      throw new ValidationError(`${field} must be ${limit} characters or fewer.`);
+    }
+    details[field] = value;
+  }
+
+  if (!partial && !details.name) throw new ValidationError("A course title is required.");
+  if (partial && details.name === "") throw new ValidationError("A course title is required.");
+  return details;
+}
+
+export function missingForPublish(course) {
+  const missing = [];
+  if (!course.name) missing.push("name");
+  if (!course.instructor) missing.push("instructor");
+  if (!course.school) missing.push("school");
+  return missing;
+}
+
+// What students see in the library: course details only, never lecture
+// transcripts, materials or teacher-only data.
+export function toLibraryEntry(course) {
+  return {
+    id: course.id,
+    name: course.name,
+    code: course.code ?? "",
+    school: course.school ?? "",
+    section: course.section ?? "",
+    instructor: course.instructor ?? course.professor ?? "",
+    instructorBio: course.instructorBio ?? "",
+    term: course.term ?? "",
+    description: course.description ?? "",
+    coverImageUrl: course.coverImageUrl ?? "",
+    lectureCount: course.lectures?.length ?? 0,
+    publishedAt: course.publishedAt ?? null
+  };
+}
+
+export function matchesLibraryQuery(entry, query) {
+  const needle = normalizeWhitespace(query).toLowerCase();
+  if (!needle) return true;
+  return [entry.name, entry.code, entry.school, entry.instructor, entry.section]
+    .some((field) => String(field ?? "").toLowerCase().includes(needle));
 }
 
 export function nowIso() {

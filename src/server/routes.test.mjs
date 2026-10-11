@@ -25,6 +25,41 @@ test("REST API creates courses and ingests lectures", async () => {
   assert.equal(searchBody.results.length, 1);
 });
 
+test("REST API publishes a course into the library", async () => {
+  const context = await createServerContext({ repository: new InMemoryStudyBuddyRepository() });
+  const call = (path, init) => handleApiRequest(new Request(`http://test${path}`, init), context);
+
+  const created = await call("/api/courses", {
+    method: "POST",
+    body: JSON.stringify({ name: "Algebra I", school: "Lincoln High School" })
+  });
+  assert.equal(created.status, 201);
+  const { course } = await created.json();
+
+  const early = await call(`/api/courses/${course.id}/publish`, { method: "POST" });
+  assert.equal(early.status, 400);
+  assert.match((await early.json()).error, /instructor/);
+
+  const patched = await call(`/api/courses/${course.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ instructor: "Ms. Park" })
+  });
+  assert.equal(patched.status, 200);
+
+  const published = await call(`/api/courses/${course.id}/publish`, { method: "POST" });
+  assert.equal(published.status, 200);
+
+  const library = await (await call("/api/library?q=algebra")).json();
+  assert.equal(library.courses.length, 1);
+  assert.equal(library.courses[0].instructor, "Ms. Park");
+
+  const missing = await call("/api/courses/not-a-real-id/publish", { method: "POST" });
+  assert.equal(missing.status, 404);
+
+  const badJson = await call("/api/courses", { method: "POST", body: "{not json" });
+  assert.equal(badJson.status, 400);
+});
+
 test("REST API builds study plans", async () => {
   const context = await createServerContext({
     repository: new InMemoryStudyBuddyRepository(seedState)

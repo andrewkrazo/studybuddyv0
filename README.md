@@ -39,8 +39,12 @@ const plan = await api.buildStudyPlan(course.id, { sessionsPerDay: 2 });
 ```bash
 npm test
 npm run dev
-npm run dev:api
+npm run dev:api     # API + static app on http://localhost:8787
+npm run db:migrate  # apply src/db/migrations/*.sql to DATABASE_URL
 ```
+
+Copy `.env.example` to `.env` and set `DATABASE_URL` to your Neon connection
+string. `.env` is git-ignored: never commit it or upload it to GitHub.
 
 ## REST API
 
@@ -50,6 +54,10 @@ The frontend can keep using the core contract through HTTP:
 - `GET /api/courses`
 - `POST /api/courses`
 - `GET /api/courses/:courseId`
+- `PATCH /api/courses/:courseId` (title, code, school, section, instructor, instructorBio, description, coverImageUrl)
+- `POST /api/courses/:courseId/publish` (requires title, instructor and school)
+- `POST /api/courses/:courseId/unpublish`
+- `GET /api/library?q=term` (published courses only; details, never lecture content)
 - `POST /api/courses/:courseId/lectures`
 - `POST /api/courses/:courseId/exam-dates`
 - `POST /api/courses/:courseId/study-plan`
