@@ -1,11 +1,25 @@
 import { createStudyBuddyApi } from "../core/api.mjs";
 import { createRepository } from "../core/repository.mjs";
 import { PostgresStudyBuddyRepository } from "../db/postgres-repository.mjs";
+import { PostgresMaterialsRepository } from "../db/postgres-materials.mjs";
+import { InMemoryMaterialsRepository } from "../materials/repository.mjs";
+import { createMaterialsService, TooLargeError } from "../materials/service.mjs";
+import { LocalFileStorage } from "../materials/storage.mjs";
 
 export async function createServerContext(options = {}) {
   const repository = options.repository ?? await createServerRepository(options);
+  const api = createStudyBuddyApi({ repository });
+  const materialsRepository = options.materialsRepository
+    ?? (repository instanceof PostgresStudyBuddyRepository
+      ? new PostgresMaterialsRepository(repository.sql)
+      : new InMemoryMaterialsRepository());
   return {
-    api: createStudyBuddyApi({ repository })
+    api,
+    materials: createMaterialsService({
+      repository: materialsRepository,
+      storage: options.fileStorage ?? new LocalFileStorage(),
+      courses: api
+    })
   };
 }
 
@@ -29,6 +43,18 @@ export async function handleApiRequest(request, context) {
     }
 
     if (parts[0] !== "api") return json({ error: "Not found" }, 404);
+
+    if (parts[1] === "materials" && parts[2] && parts[3] === "file" && parts.length === 4 && method === "GET") {
+      const file = await context.materials.coverFile(parts[2]);
+      if (!file) return json({ error: "Not found" }, 404);
+      return new Response(file.bytes, {
+        headers: {
+          "content-type": file.contentType,
+          "cache-control": "public, max-age=3600",
+          "x-content-type-options": "nosniff"
+        }
+      });
+    }
 
     if (parts[1] === "library" && parts.length === 2 && method === "GET") {
       return json({ courses: await api.listLibrary(url.searchParams.get("q") ?? "") });
@@ -64,6 +90,37 @@ export async function handleApiRequest(request, context) {
       return json({ course: await api.addLecture(courseId, await request.json()) }, 201);
     }
 
+    if (parts[1] === "courses" && courseId && parts[3] === "materials") {
+      const materialId = parts[4];
+      if (parts.length === 4 && method === "POST") {
+        const bytes = new Uint8Array(await request.arrayBuffer());
+        const material = await context.materials.upload(courseId, {
+          kind: url.searchParams.get("kind") ?? "",
+          filename: url.searchParams.get("filename") ?? "",
+          bytes
+        });
+        return json({ material }, 201);
+      }
+      if (parts.length === 4 && method === "GET") {
+        return json({ materials: await context.materials.list(courseId) });
+      }
+      if (materialId && parts.length === 5 && method === "DELETE") {
+        return json({ material: await context.materials.remove(courseId, materialId) });
+      }
+      if (materialId && parts[5] === "passages" && parts.length === 6 && method === "GET") {
+        return json({ passages: await context.materials.passages(courseId, materialId) });
+      }
+    }
+
+    if (parts[1] === "courses" && courseId && parts[3] === "sources" && parts.length === 4 && method === "GET") {
+      const limit = Number(url.searchParams.get("limit") ?? 8);
+      return json({
+        results: await context.materials.search(courseId, url.searchParams.get("q") ?? "", {
+          limit: Number.isFinite(limit) ? Math.min(Math.max(1, limit), 25) : 8
+        })
+      });
+    }
+
     if (parts[1] === "courses" && courseId && parts[3] === "exam-dates" && method === "POST") {
       const body = await request.json();
       return json({ course: await api.addExamDate(courseId, body.examDate) }, 201);
@@ -89,7 +146,7 @@ export async function handleApiRequest(request, context) {
 
     return json({ error: "Not found" }, 404);
   } catch (error) {
-    const status = /not found/i.test(error.message) ? 404 : 400;
+    const status = error instanceof TooLargeError ? 413 : /not found/i.test(error.message) ? 404 : 400;
     return json({ error: error.message }, status);
   }
 }

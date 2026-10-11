@@ -58,6 +58,21 @@ The frontend can keep using the core contract through HTTP:
 - `POST /api/courses/:courseId/publish` (requires title, instructor and school)
 - `POST /api/courses/:courseId/unpublish`
 - `GET /api/library?q=term` (published courses only; details, never lecture content)
+- `POST /api/courses/:courseId/materials?kind=syllabus|slides|notes|cover&filename=...` (raw file body; PDF, DOCX, PPTX, TXT, MD; covers PNG/JPG/WEBP)
+- `GET /api/courses/:courseId/materials`
+- `DELETE /api/courses/:courseId/materials/:materialId`
+- `GET /api/courses/:courseId/materials/:materialId/passages`
+- `GET /api/courses/:courseId/sources?q=question` (ranked passages from this course only, each with a citation like `Unit3_Slides.pptx, slide 12`)
+- `GET /api/materials/:materialId/file` (cover images only)
+
+## Course materials
+
+Uploads are checked by their bytes (not just the extension), limited to 25 MB
+(5 MB for covers), and stored under `storage/` (git-ignored; set
+`STUDYBUDDY_STORAGE_DIR` to change it). Text is extracted per PDF page, per
+slide (plus speaker notes), and per DOCX/Markdown heading, then split into
+passages in the `source_segments` table with a Postgres full-text index. That
+table is what the Class AI searches; every query is filtered to one course.
 - `POST /api/courses/:courseId/lectures`
 - `POST /api/courses/:courseId/exam-dates`
 - `POST /api/courses/:courseId/study-plan`
