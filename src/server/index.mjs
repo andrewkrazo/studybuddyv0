@@ -35,7 +35,8 @@ async function toWebRequest(nodeRequest) {
 }
 
 async function serveStatic(pathname) {
-  const relative = pathname === "/" ? "index.html" : pathname.slice(1);
+  // Folder URLs like /teacher/ serve that folder's index.html.
+  const relative = pathname.endsWith("/") ? `${pathname.slice(1)}index.html` : pathname.slice(1);
   const safe = normalize(relative).replace(/^(\.\.[/\\])+/, "");
   const filePath = join(dist, safe);
   try {
@@ -64,6 +65,10 @@ function contentType(filePath) {
     ".js": "text/javascript; charset=utf-8",
     ".json": "application/json; charset=utf-8",
     ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+    ".woff2": "font/woff2",
     ".svg": "image/svg+xml"
   }[extname(filePath)] ?? "application/octet-stream";
 }

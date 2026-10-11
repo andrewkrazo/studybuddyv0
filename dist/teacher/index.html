@@ -457,6 +457,9 @@ td .progress{width:110px;display:inline-block;vertical-align:middle;margin-right
 @media (max-width:420px){.cover-row,.slides-row{grid-template-columns:minmax(0,1fr)}.step span.l{display:none}}
 @media (max-height:760px){.promo{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.mode-note{grid-column:1/-1;border:1px solid var(--line2);border-left:3px solid var(--gold);border-radius:12px;background:var(--panel);color:var(--soft);padding:12px 16px;font-size:15px;line-height:1.45}
+.mode-note b{color:var(--text)}
+.pub-err{color:var(--red);margin-top:10px}
 </style>
 </head>
 <body class="has-bar">
@@ -522,24 +525,22 @@ td .progress{width:110px;display:inline-block;vertical-align:middle;margin-right
                 <div class="field"><label for="fTitle">Course Title <span class="req">*</span></label><input class="input" id="fTitle" data-f="title" autocomplete="off" maxlength="70" /></div>
                 <div class="field"><label for="fCode">Course Code <span class="req">*</span></label><input class="input" id="fCode" data-f="code" autocomplete="off" maxlength="14" /></div>
                 <div class="field"><label for="fSchool">School <span class="req">*</span></label>
-                  <select class="select" id="fSchool" data-f="school">
-                    <option value="">Choose a school</option><option>Computer Science</option><option>Biology</option><option>Economics</option><option>Mathematics</option><option>Neuroscience</option><option>History</option><option>Engineering</option><option>Philosophy</option>
-                  </select></div>
+                  <input class="input" id="fSchool" data-f="school" autocomplete="organization" maxlength="120" placeholder="e.g. Lincoln High School" /></div>
                 <div class="field"><label for="fSection">Section</label>
-                  <select class="select" id="fSection" data-f="section">
-                    <option>Lecture 1</option><option>Lecture 2</option><option>Lecture 3</option><option>Lecture 4</option><option>Lecture 5</option><option>Seminar</option><option>Lab</option>
-                  </select></div>
+                  <input class="input" id="fSection" data-f="section" autocomplete="off" maxlength="40" placeholder="e.g. Period 3" /></div>
               </div>
             </section>
 
             <section class="panel" id="pProf">
-              <h2 class="panel-h"><i data-i="user"></i>Professor</h2>
+              <h2 class="panel-h"><i data-i="user"></i>Instructor</h2>
               <div class="fgrid one">
-                <div class="field"><label for="fProf">Professor Name <span class="req">*</span></label><input class="input" id="fProf" data-f="prof" autocomplete="off" maxlength="48" /></div>
+                <div class="field"><label for="fProf">Instructor Name <span class="req">*</span></label><input class="input" id="fProf" data-f="prof" autocomplete="off" maxlength="120" placeholder="e.g. Ms. Alvarez" /></div>
                 <div class="field"><label for="fBio">Bio <span class="req">*</span></label>
                   <div class="bio-wrap"><textarea class="textarea" id="fBio" data-f="bio" maxlength="500"></textarea><span class="counter" id="bioCount">0/500</span></div></div>
               </div>
             </section>
+
+            <div class="mode-note span2" id="modeNote" role="status" hidden></div>
 
             <section class="panel" id="pCover">
               <h2 class="panel-h"><i data-i="image"></i>Course Cover Image</h2>
@@ -725,7 +726,7 @@ const ring = (p, small) => small
 
 /* ---------------- state ---------------- */
 const DEFAULTS = () => ({
-  title:'Neural Networks', code:'CS 101', school:'Computer Science', section:'Lecture 5', prof:'Dr. Elena Park',
+  title:'Neural Networks', code:'CS 101', school:'Brown University', section:'Lecture 5', prof:'Dr. Elena Park',
   bio:'Dr. Elena Park is a machine learning researcher and professor at Brown University. Her research focuses on deep learning, AI alignment, and human–AI collaboration.',
   cover:'../assets/tp-neural.jpg',
   syllabus:{id:uid(), name:'CS101_Syllabus_Fall2024.pdf', size:2.4*MB, done:1},
@@ -749,6 +750,58 @@ const OTHER_CLASSES = [
   {id:'ethics', title:'AI Ethics & Society', code:'CS 180', status:'live', students:873, lectures:14, cover:'../assets/tp-c-ethics.jpg', updated:'Sep 30'},
   {id:'lab', title:'Machine Learning Lab', code:'CS 147', status:'draft', students:0, lectures:6, cover:'../assets/tp-c-lab.jpg', updated:'Oct 2'}
 ];
+
+/* ---------------- server (course persistence) ----------------
+   When the page is served by `npm run dev:api`, course details are saved to the
+   API and published courses appear in the student library. Opened as a static
+   file (no API), the original scripted demo runs and nothing is saved. */
+const DRAFT_KEY='syllabuddy:teacher:courseId';
+const API={online:false, courseId:null};
+const store={
+  get(){ try{ return localStorage.getItem(DRAFT_KEY); }catch{ return null; } },
+  set(v){ try{ v?localStorage.setItem(DRAFT_KEY,v):localStorage.removeItem(DRAFT_KEY); }catch{} }
+};
+async function api(path, opts={}){
+  const r=await fetch('/api'+path, {method:opts.method||'GET', headers:{'content-type':'application/json',accept:'application/json'}, body:opts.body?JSON.stringify(opts.body):undefined});
+  const isJson=(r.headers.get('content-type')||'').includes('json');
+  const data=isJson?await r.json():null;
+  if(!r.ok||!isJson){ const err=new Error(data?.error||`Server error (${r.status})`); err.status=r.status; throw err; }
+  return data;
+}
+const BLANK = () => ({...DEFAULTS(), title:'', code:'', school:'', section:'', prof:'', bio:'', cover:null, syllabus:null, videos:[], slides:null, notes:[], lectures:0, published:false, publishedAt:null});
+// Only same-site paths and https URLs are stored; local file previews (blob:) are not uploads.
+function coverForServer(c){ if(!c||c.startsWith('blob:')) return ''; if(c.startsWith('../')) return '/'+c.slice(3); return /^(\/|https:\/\/)/.test(c)?c:''; }
+function coverFromServer(u){ return u ? (u.startsWith('/')?'..'+u:u) : null; }
+function payload(){ return {name:S.title.trim(), code:S.code.trim(), school:S.school.trim(), section:S.section.trim(), instructor:S.prof.trim(), instructorBio:S.bio.trim(), coverImageUrl:coverForServer(S.cover)}; }
+function applyCourse(c){
+  API.courseId=c.id; store.set(c.id);
+  const keepCover = S.cover && S.cover.startsWith('blob:') ? S.cover : null;
+  Object.assign(S, {title:c.name||'', code:c.code||'', school:c.school||'', section:c.section||'', prof:c.instructor||c.professor||'', bio:c.instructorBio||'',
+    cover:coverFromServer(c.coverImageUrl)||keepCover, lectures:c.lectures?.length||0, published:c.status==='published',
+    publishedAt:c.publishedAt?new Date(c.publishedAt).toLocaleString([], {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}):null});
+}
+async function saveToServer(){
+  const body=payload();
+  const res = API.courseId ? await api(`/courses/${API.courseId}`, {method:'PATCH', body}) : await api('/courses', {method:'POST', body});
+  applyCourse(res.course);
+  return res.course;
+}
+async function initServer(){
+  try{ await api('/health'); API.online=true; }catch{ API.online=false; }
+  const note=$('#modeNote');
+  if(!API.online){
+    note.innerHTML='<b>Demo mode.</b> No server is connected, so nothing on this page is saved. Run <code>npm run dev:api</code> and open the portal from it to save and publish real courses.';
+    note.hidden=false; return;
+  }
+  note.innerHTML='<b>Course details are saved.</b> File uploads (cover image, syllabus, recordings, slides, notes) are not stored yet and will not appear for students. That is the next feature being built.';
+  note.hidden=false;
+  S=BLANK();
+  const id=store.get();
+  if(id){
+    try{ applyCourse((await api(`/courses/${id}`)).course); draftNote='Saved draft loaded'; }
+    catch(e){ if(e.status===404) store.set(null); else toast(`Couldn't load your saved course: ${esc(e.message)}`,{icon:'help',ms:5000}); }
+  }
+}
 
 /* ---------------- toasts ---------------- */
 function toast(msg, opts={}) {
@@ -819,9 +872,9 @@ function libCard(opts={}){
       ${opts.noBm?'':`<button class="bm ${S.saved?'on':''}" data-act="bookmark" aria-pressed="${S.saved}" aria-label="Bookmark preview">${ic('bookmark')}</button>`}</div>
     <div class="lib-body">
       <h3 class="lib-title">${esc(t)}</h3>
-      <div class="lib-row">${ic('book')}<span>${esc(S.code||'—')} <span class="sep">•</span> ${esc(S.school||'—')}</span></div>
-      <div class="lib-row"><span class="avatar sm">${esc(initials(S.prof))}</span><span>${esc(S.prof||'Professor')}</span></div>
-      <div class="lib-row">${ic('bank')}<span>Brown University</span></div>
+      <div class="lib-row">${ic('book')}<span>${esc(S.code||'—')}${S.section?` <span class="sep">•</span> ${esc(S.section)}`:''}</span></div>
+      <div class="lib-row"><span class="avatar sm">${esc(initials(S.prof))}</span><span>${esc(S.prof||'Instructor')}</span></div>
+      <div class="lib-row">${ic('bank')}<span>${esc(S.school||'School')}</span></div>
       <div class="lib-foot"><span><span class="pc">${ic('playf')}</span>${plural(S.lectures,'lecture')}</span><span><svg class="lvl" viewBox="0 0 15 14" aria-hidden="true"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="6" y="5" width="3" height="9" rx="1"/><rect x="12" y="0" width="3" height="14" rx="1" class="${S.level==='Intro'?'off':''}"/></svg>${S.level}</span></div>
     </div></article>`;
 }
@@ -833,14 +886,14 @@ function materials(){
 function renderInfo(){
   const d=(k,v)=>`<dt>${k}</dt><dd>${v||'<span style="color:var(--amber)">Missing</span>'}</dd>`;
   $('#infoList').innerHTML = d('Course',esc(S.title.trim()))+d('Code',esc(S.code.trim()))+d('School',esc(S.school))+d('Section',esc(S.section)) +
-    '<hr>' + d('Professor',esc(S.prof.trim())) + d('Materials',materials()) + d('Syllabus', S.syllabus?esc(S.syllabus.name):'');
+    '<hr>' + d('Instructor',esc(S.prof.trim())) + d('Materials',materials()) + d('Syllabus', S.syllabus?esc(S.syllabus.name):'');
 }
 function renderPreview(){ $('#libCard').innerHTML = libCard(); }
 function missing(){
   const m=[];
-  if(!S.title.trim())m.push(['Course title','fTitle']); if(!S.code.trim())m.push(['Course code','fCode']); if(!S.school)m.push(['School','fSchool']);
-  if(!S.prof.trim())m.push(['Professor name','fProf']); if(!S.bio.trim())m.push(['Bio','fBio']);
-  if(!S.cover)m.push(['Cover image','pCover']); if(!S.syllabus)m.push(['Syllabus','pSyllabus']);
+  if(!S.title.trim())m.push(['Course title','fTitle']); if(!S.code.trim())m.push(['Course code','fCode']); if(!S.school.trim())m.push(['School','fSchool']);
+  if(!S.prof.trim())m.push(['Instructor name','fProf']); if(!S.bio.trim())m.push(['Bio','fBio']);
+  if(!API.online){ if(!S.cover)m.push(['Cover image','pCover']); if(!S.syllabus)m.push(['Syllabus','pSyllabus']); }
   return m;
 }
 let draftNote='';
@@ -957,7 +1010,7 @@ function renderPhone(){
     <div class="ph-body">
       <span class="ph-chip">${esc(S.code||'Course')} · ${esc(S.school||'School')}</span>
       <h3 class="ph-title">${esc(S.title.trim()||'Untitled course')}</h3>
-      <div class="ph-prof"><span class="avatar sm">${esc(initials(S.prof))}</span>${esc(S.prof||'Professor')} · Brown University</div>
+      <div class="ph-prof"><span class="avatar sm">${esc(initials(S.prof))}</span>${esc(S.prof||'Instructor')} · ${esc(S.school||'School')}</div>
       <div class="ph-stats"><div><b>${S.lectures}</b><span>lectures</span></div><div><b>${notes.length+(slides?1:0)}</b><span>study files</span></div><div><b>${S.published?'1':'0'}</b><span>students</span></div></div>
       <div class="ph-cta"><button class="btn-gold" data-act="phadd">Add to my classes</button><button class="btn-o" data-act="bookmark" aria-label="Bookmark">${ic('bookmark')}</button></div>
       <div class="ph-tabs" role="tablist">${['lectures','slides','notes','about'].map(t=>`<button role="tab" class="${t===phTab?'on':''}" data-act="phtab" data-tab="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div>
@@ -972,6 +1025,7 @@ async function publish(){
   if (publishing) return;
   if ($('#dlgPreview').open) $('#dlgPreview').close();
   if (missing().length){ $('#publishBtn').classList.remove('shake'); void $('#publishBtn').offsetWidth; $('#publishBtn').classList.add('shake'); showMissing(); return; }
+  if (API.online) return publishToServer();
   publishing=true;
   const pending=allItems().filter(([,i])=>i.done<1).length;
   const nNotes=S.notes.length+(S.slides?1:0);
@@ -1004,6 +1058,41 @@ async function publish(){
   publishing=false;
 }
 const wait = ms => new Promise(r=>setTimeout(r,ms));
+
+async function publishToServer(){
+  publishing=true;
+  const wasLive=S.published;
+  const steps=['Saving course details', wasLive?'Updating your library listing':'Publishing to the student library'];
+  const body=$('#pubBody');
+  body.innerHTML = `<div class="seal">${ic('cloud')}</div><h2>${wasLive?'Updating':'Publishing'} ${esc(S.title.trim())}</h2><p>Saving to the server.</p>
+    <ul class="pub-steps">${steps.map(s=>`<li><span class="dot"></span>${s}</li>`).join('')}</ul><div class="pub-bar"><i></i></div>`;
+  $('#dlgPublish').showModal();
+  const lis=$$('.pub-steps li',body), bar=$('.pub-bar i',body);
+  const mark=i=>{ lis[i].classList.replace('doing','done'); lis[i].querySelector('.dot').innerHTML=ic('check'); bar.style.width=((i+1)/lis.length*100)+'%'; };
+  try{
+    lis[0].classList.add('doing'); await saveToServer(); mark(0);
+    lis[1].classList.add('doing'); applyCourse((await api(`/courses/${API.courseId}/publish`, {method:'POST'})).course); mark(1);
+  }catch(e){
+    publishing=false; renderAll();
+    body.innerHTML = `<div class="seal">${ic('x')}</div><h2>Couldn't publish</h2><p class="pub-err">${esc(e.message)}</p>
+      <p>Nothing new was published. Fix the issue and try again.</p><div class="btns"><button class="btn-gold sm" data-act="close">Close</button></div>`;
+    return;
+  }
+  draftNote=''; renderAll();
+  body.innerHTML = `<div class="pub-done"><div class="seal">${ic('check')}</div><h2>${wasLive?'Listing updated':'Your class is live'}</h2>
+    <p>Students can now find <b>${esc(S.title.trim())}</b> in Search Classes.</p>${libCard({noBm:true})}
+    <div class="btns"><a class="btn-o" href="../index.html" target="_blank" rel="noopener">${ic('phone')}Open student app</a><button class="btn-gold sm" data-act="close">Done</button></div></div>`;
+  publishing=false;
+}
+async function saveDraft(){
+  if(!API.online){ draftNote=`Draft saved ${nowTime()}`; S.draftAt=nowTime(); renderStatus(); toast('Demo mode: drafts are not saved anywhere.',{icon:'save'}); return; }
+  if(!S.title.trim()){ $('#fTitle').classList.add('bad'); $('#fTitle').focus(); toast('Add a course title to save a draft',{icon:'help'}); return; }
+  try{
+    await saveToServer();
+    draftNote=S.published?`Changes saved ${nowTime()}`:`Draft saved ${nowTime()}`; renderAll();
+    toast(S.published?'Saved. Students see the updated details.':'Draft saved. It stays private until you publish.',{icon:'save'});
+  }catch(e){ toast(`Couldn't save: ${esc(e.message)}`,{icon:'help',ms:5000}); }
+}
 
 /* ---------------- secondary views ---------------- */
 const coursePct = () => { const total=8; let have=total-missing().length; if(S.videos.some(v=>v.done>=1)) have++; return Math.min(100,Math.round(have/(total+1)*100)); };
@@ -1162,7 +1251,7 @@ document.addEventListener('click', e=>{
       break; }
     case 'edit': window.scrollTo({top:0,behavior:'smooth'}); setTimeout(()=>{ $('#fTitle').focus({preventScroll:true}); $('#fTitle').select(); },300); flash($('#pDetails')); break;
     case 'bookmark': S.saved=!S.saved; renderPreview(); if($('#dlgPreview').open) renderPhone(); toast(S.saved?'Saved to bookmarks':'Removed from bookmarks',{icon:'bookmark',ms:1800}); break;
-    case 'save': draftNote=`Draft saved ${nowTime()}`; S.draftAt=nowTime(); renderStatus(); toast('Draft saved. You can come back to it from My Classes.',{icon:'save'}); break;
+    case 'save': saveDraft(); break;
     case 'preview': if(view!=='create') show('create',{scroll:false}); openPreview(); break;
     case 'publish': publish(); break;
     case 'fix': showMissing(); break;
@@ -1173,7 +1262,7 @@ document.addEventListener('click', e=>{
     case 'library': window.open('../index.html','_blank','noopener'); break;
     case 'profile': { const m=$('#profileMenu'); const o=!m.classList.contains('open'); m.classList.toggle('open',o); b.setAttribute('aria-expanded',o); break; }
     case 'signout': closeMenu(); toast('Signed out (demo). Refresh to sign back in.',{icon:'logout'}); break;
-    case 'reset': closeMenu(); S=DEFAULTS(); draftNote=''; fillForm(); renderAll(); show('create'); toast('Demo reset',{icon:'refresh'}); break;
+    case 'reset': closeMenu(); if(API.online){ API.courseId=null; store.set(null); S=BLANK(); } else S=DEFAULTS(); draftNote=''; fillForm(); renderAll(); show('create'); toast(API.online?'Started a new course':'Demo reset',{icon:'refresh'}); break;
     case 'soon': toast(b.dataset.msg,{icon:'pencil'}); break;
     case 'clsfilter': clsFilter=b.dataset.v; show('classes',{scroll:false}); break;
     case 'uptype': upType=b.dataset.v; $$('[data-act="uptype"]').forEach(c=>c.classList.toggle('on',c===b)); fillUploads(); break;
@@ -1203,9 +1292,11 @@ $('#dlgPublish').addEventListener('cancel', e=>{ if(publishing) e.preventDefault
 
 /* ---------------- boot ---------------- */
 hydrate();
-fillForm();
-renderAll();
-show(location.hash.slice(1)||'create');
+initServer().finally(()=>{
+  fillForm();
+  renderAll();
+  show(location.hash.slice(1)||'create');
+});
 })();
 </script>
 </body>
