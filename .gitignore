@@ -4,3 +4,6 @@ stage-glow/
 node_modules/
 .env
 .env.local
+
+# Uploaded course files (local dev storage)
+storage/

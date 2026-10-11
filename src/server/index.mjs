@@ -9,8 +9,15 @@ const dist = join(root, "dist");
 const port = Number(process.env.STUDYBUDDY_API_PORT ?? 8787);
 const context = await createServerContext();
 
+// Largest upload (25 MB document) plus headroom; anything bigger is refused
+// before it is buffered in memory.
+const MAX_BODY_BYTES = 30 * 1024 * 1024;
+
 const server = createServer(async (nodeRequest, nodeResponse) => {
+  const declared = Number(nodeRequest.headers["content-length"] ?? 0);
+  if (declared > MAX_BODY_BYTES) return refuseTooLarge(nodeRequest, nodeResponse);
   const request = await toWebRequest(nodeRequest);
+  if (!request) return refuseTooLarge(nodeRequest, nodeResponse);
   const url = new URL(request.url);
 
   if (url.pathname.startsWith("/api/")) {
@@ -24,9 +31,20 @@ server.listen(port, () => {
   console.log(`StudyBuddy API listening at http://localhost:${port}`);
 });
 
+function refuseTooLarge(nodeRequest, nodeResponse) {
+  nodeResponse.writeHead(413, { "content-type": "application/json; charset=utf-8", connection: "close" });
+  nodeResponse.end(JSON.stringify({ error: "That file is too large." }));
+  nodeRequest.resume();
+}
+
 async function toWebRequest(nodeRequest) {
   const chunks = [];
-  for await (const chunk of nodeRequest) chunks.push(chunk);
+  let size = 0;
+  for await (const chunk of nodeRequest) {
+    size += chunk.length;
+    if (size > MAX_BODY_BYTES) return null;
+    chunks.push(chunk);
+  }
   return new Request(`http://localhost${nodeRequest.url}`, {
     method: nodeRequest.method,
     headers: nodeRequest.headers,

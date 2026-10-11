@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { InMemoryStudyBuddyRepository } from "../core/repository.mjs";
 import { sampleLecture, seedState } from "../data/seed.mjs";
+import { MemoryFileStorage } from "../materials/storage.mjs";
+import { makePdf } from "../materials/test-fixtures.mjs";
 import { createServerContext, handleApiRequest } from "./routes.mjs";
 
 test("REST API creates courses and ingests lectures", async () => {
@@ -58,6 +60,43 @@ test("REST API publishes a course into the library", async () => {
 
   const badJson = await call("/api/courses", { method: "POST", body: "{not json" });
   assert.equal(badJson.status, 400);
+});
+
+test("REST API uploads materials and searches them with citations", async () => {
+  const context = await createServerContext({
+    repository: new InMemoryStudyBuddyRepository(),
+    fileStorage: new MemoryFileStorage()
+  });
+  const call = (path, init) => handleApiRequest(new Request(`http://test${path}`, init), context);
+  const { course } = await (await call("/api/courses", { method: "POST", body: JSON.stringify({ name: "Biology" }) })).json();
+
+  const upload = await call(`/api/courses/${course.id}/materials?kind=notes&filename=${encodeURIComponent("Unit 2.pdf")}`, {
+    method: "POST",
+    body: makePdf(["Osmosis is water moving across a membrane.", "Active transport uses energy."])
+  });
+  assert.equal(upload.status, 201);
+  const { material } = await upload.json();
+  assert.equal(material.segmentCount, 2);
+
+  const search = await (await call(`/api/courses/${course.id}/sources?q=${encodeURIComponent("what is osmosis")}`)).json();
+  assert.equal(search.results[0].citation, "Unit 2.pdf, p. 1");
+
+  const bad = await call(`/api/courses/${course.id}/materials?kind=notes&filename=x.exe`, { method: "POST", body: "MZ..." });
+  assert.equal(bad.status, 400);
+
+  const huge = await call(`/api/courses/${course.id}/materials?kind=notes&filename=big.pdf`, {
+    method: "POST",
+    body: new Uint8Array(26 * 1024 * 1024)
+  });
+  assert.equal(huge.status, 413);
+
+  const notServed = await call(`/api/materials/${material.id}/file`);
+  assert.equal(notServed.status, 404);
+
+  const removed = await call(`/api/courses/${course.id}/materials/${material.id}`, { method: "DELETE" });
+  assert.equal(removed.status, 200);
+  const after = await (await call(`/api/courses/${course.id}/sources?q=osmosis`)).json();
+  assert.equal(after.results.length, 0);
 });
 
 test("REST API builds study plans", async () => {
