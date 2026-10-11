@@ -91,7 +91,10 @@ Economics `c-yellow`. Other courses cycle pink, lilac, then repeat.
 ## Student vs teacher
 
 Same tokens, type and components. The student app is a single mobile-first column
-(max 560px, centered on large screens) with a bottom tab bar and uses course
-highlighters freely. The teacher portal is a desktop work surface: white sheets on
+with a bottom tab bar and uses course highlighters freely. On screens at least
+720×640 it sits inside a dark device frame (`dist/assets/student/device-frame.css`,
+the only place dark colors are used); on phones it fills the screen. Inside the
+frame the screen scrolls, so view changes call `scrollTop0()` instead of
+`window.scrollTo`. The teacher portal is a desktop work surface: white sheets on
 paper, a quiet sidebar, highlighters only on course chips and previews, and the pen
 button reserved for "Publish to library".
