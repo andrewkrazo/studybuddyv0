@@ -3,8 +3,13 @@ import {
   createId,
   ingestLecture,
   markExercise,
+  matchesLibraryQuery,
+  missingForPublish,
   rebuildCourseMemory,
-  searchCourseMemory
+  sanitizeCourseDetails,
+  searchCourseMemory,
+  toLibraryEntry,
+  ValidationError
 } from "./studybuddy.mjs";
 import { createRepository } from "./repository.mjs";
 
@@ -16,13 +21,15 @@ export function createStudyBuddyApi(options = {}) {
       return repository.listCourses();
     },
 
-    async createCourse(input) {
+    async createCourse(input = {}) {
+      const details = sanitizeCourseDetails(input);
       const course = rebuildCourseMemory({
-        id: input.id ?? createId("course"),
-        name: input.name,
-        code: input.code ?? "",
-        professor: input.professor ?? "",
-        term: input.term ?? "",
+        id: createId("course"),
+        ...details,
+        // Legacy field kept in sync for older screens that still read it.
+        professor: details.instructor,
+        status: "draft",
+        publishedAt: null,
         examDates: input.examDates ?? [],
         lectures: [],
         createdAt: new Date().toISOString()
@@ -32,6 +39,42 @@ export function createStudyBuddyApi(options = {}) {
 
     async getCourse(courseId) {
       return repository.getCourse(courseId);
+    },
+
+    async updateCourse(courseId, input = {}) {
+      const course = await requiredCourse(repository, courseId);
+      const details = sanitizeCourseDetails(input, { partial: true });
+      const next = { ...course, ...details };
+      if (details.instructor !== undefined) next.professor = details.instructor;
+      if (next.status === "published") assertPublishable(next);
+      return repository.saveCourse(rebuildCourseMemory(next));
+    },
+
+    async publishCourse(courseId) {
+      const course = await requiredCourse(repository, courseId);
+      assertPublishable(course);
+      return repository.saveCourse(rebuildCourseMemory({
+        ...course,
+        status: "published",
+        publishedAt: course.publishedAt ?? new Date().toISOString()
+      }));
+    },
+
+    async unpublishCourse(courseId) {
+      const course = await requiredCourse(repository, courseId);
+      return repository.saveCourse(rebuildCourseMemory({
+        ...course,
+        status: "draft",
+        publishedAt: null
+      }));
+    },
+
+    async listLibrary(query = "") {
+      const courses = await repository.listCourses();
+      return courses
+        .filter((course) => course.status === "published")
+        .map(toLibraryEntry)
+        .filter((entry) => matchesLibraryQuery(entry, query));
     },
 
     async addLecture(courseId, lectureInput) {
@@ -74,6 +117,13 @@ export function createStudyBuddyApi(options = {}) {
       return requiredCourse(repository, courseId);
     }
   };
+}
+
+function assertPublishable(course) {
+  const missing = missingForPublish(course);
+  if (missing.length) {
+    throw new ValidationError(`Add these before publishing: ${missing.join(", ")}.`);
+  }
 }
 
 async function requiredCourse(repository, courseId) {

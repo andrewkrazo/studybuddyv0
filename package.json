@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "python -m http.server 3000 --directory dist",
-    "dev:api": "node src/server/index.mjs",
+    "dev:api": "node --env-file-if-exists=.env src/server/index.mjs",
     "start": "python -m http.server 3000 --directory dist",
-    "start:api": "node src/server/index.mjs",
-    "test": "node --test src/**/*.test.mjs"
+    "start:api": "node --env-file-if-exists=.env src/server/index.mjs",
+    "test": "node --test src/**/*.test.mjs",
+    "db:migrate": "node --env-file-if-exists=.env src/db/migrate.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

@@ -30,6 +30,10 @@ export async function handleApiRequest(request, context) {
 
     if (parts[0] !== "api") return json({ error: "Not found" }, 404);
 
+    if (parts[1] === "library" && parts.length === 2 && method === "GET") {
+      return json({ courses: await api.listLibrary(url.searchParams.get("q") ?? "") });
+    }
+
     if (parts[1] === "courses" && parts.length === 2 && method === "GET") {
       return json({ courses: await api.listCourses() });
     }
@@ -42,6 +46,18 @@ export async function handleApiRequest(request, context) {
     if (parts[1] === "courses" && courseId && parts.length === 3 && method === "GET") {
       const course = await api.getCourse(courseId);
       return course ? json({ course }) : json({ error: "Course not found" }, 404);
+    }
+
+    if (parts[1] === "courses" && courseId && parts.length === 3 && method === "PATCH") {
+      return json({ course: await api.updateCourse(courseId, await request.json()) });
+    }
+
+    if (parts[1] === "courses" && courseId && parts[3] === "publish" && parts.length === 4 && method === "POST") {
+      return json({ course: await api.publishCourse(courseId) });
+    }
+
+    if (parts[1] === "courses" && courseId && parts[3] === "unpublish" && parts.length === 4 && method === "POST") {
+      return json({ course: await api.unpublishCourse(courseId) });
     }
 
     if (parts[1] === "courses" && courseId && parts[3] === "lectures" && method === "POST") {

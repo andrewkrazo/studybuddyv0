@@ -1,4 +1,5 @@
 import { InMemoryStudyBuddyRepository } from "../core/repository.mjs";
+import { isUuid } from "../core/studybuddy.mjs";
 
 export class PostgresStudyBuddyRepository extends InMemoryStudyBuddyRepository {
   constructor(sql, options = {}) {
@@ -25,6 +26,9 @@ export class PostgresStudyBuddyRepository extends InMemoryStudyBuddyRepository {
   }
 
   async getCourse(courseId) {
+    // Non-UUID ids can't exist in the table; treat them as "not found"
+    // instead of letting Postgres raise a type error.
+    if (!isUuid(courseId)) return null;
     const rows = await this.sql`
       select snapshot
       from courses
@@ -37,14 +41,25 @@ export class PostgresStudyBuddyRepository extends InMemoryStudyBuddyRepository {
   async saveCourse(course) {
     const examDates = course.examDates ?? [];
     await this.sql`
-      insert into courses (id, user_id, name, code, professor, term, memory, progress, snapshot, updated_at)
+      insert into courses (
+        id, user_id, name, code, professor, term,
+        school, section, instructor_bio, description, cover_image_url, status, published_at,
+        memory, progress, snapshot, updated_at
+      )
       values (
         ${course.id},
         ${this.userId},
         ${course.name},
         ${course.code ?? ""},
-        ${course.professor ?? ""},
+        ${course.instructor ?? course.professor ?? ""},
         ${course.term ?? ""},
+        ${course.school ?? ""},
+        ${course.section ?? ""},
+        ${course.instructorBio ?? ""},
+        ${course.description ?? ""},
+        ${course.coverImageUrl ?? ""},
+        ${course.status ?? "draft"},
+        ${course.publishedAt ?? null},
         ${JSON.stringify(course.memory ?? {})}::jsonb,
         ${JSON.stringify(course.progress ?? {})}::jsonb,
         ${JSON.stringify(course)}::jsonb,
@@ -55,6 +70,13 @@ export class PostgresStudyBuddyRepository extends InMemoryStudyBuddyRepository {
         code = excluded.code,
         professor = excluded.professor,
         term = excluded.term,
+        school = excluded.school,
+        section = excluded.section,
+        instructor_bio = excluded.instructor_bio,
+        description = excluded.description,
+        cover_image_url = excluded.cover_image_url,
+        status = excluded.status,
+        published_at = excluded.published_at,
         memory = excluded.memory,
         progress = excluded.progress,
         snapshot = excluded.snapshot,
@@ -74,6 +96,7 @@ export class PostgresStudyBuddyRepository extends InMemoryStudyBuddyRepository {
   }
 
   async deleteCourse(courseId) {
+    if (!isUuid(courseId)) return;
     await this.sql`delete from courses where id = ${courseId}`;
   }
 
