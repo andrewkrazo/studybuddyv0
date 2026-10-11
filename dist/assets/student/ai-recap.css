@@ -1,0 +1,487 @@
+/* Student app: Class AI screen (#aiView, .ai-*) and Quick recap dialog (#recapDialog, .recap-*). */
+
+/* ---------- Class AI: layout ---------- */
+
+.ai-view {
+  /* Room for the composer pinned above the bottom nav */
+  padding-bottom: 88px;
+}
+.ai-shell { display: grid; gap: var(--s5); min-width: 0; }
+
+/* Header: title + one plain line about grounding (no mascot) */
+.ai-hero { display: grid; gap: var(--s2); }
+.ai-hero h1 { font-size: var(--t-2xl); color: var(--ink); }
+.ai-hero-desc { max-width: 60ch; color: var(--pencil); font-size: var(--t-md); }
+.ai-mascot { display: none; }
+
+/* Course tabs: chips, the selected one filled with that course's highlighter */
+.ai-tabs { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.ai-tab {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 0 var(--s4);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-pill);
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: var(--t-sm);
+  font-weight: var(--w-label);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.ai-tab:hover { background: var(--wash); }
+.ai-tab.active,
+.ai-tab[aria-selected="true"] {
+  background: var(--course, var(--pen-wash));
+  border-color: var(--ink); /* non-color cue for the selected tab */
+  color: var(--ink);
+}
+.ai-tab:focus-visible { border-radius: var(--r-pill); }
+
+/* Chat area: open page, not a card */
+.ai-chat { display: grid; gap: var(--s5); min-width: 0; }
+.ai-class-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s1) var(--s3);
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--rule);
+}
+.ai-class-name {
+  min-width: 0;
+  font-size: var(--t-lg);
+  font-weight: var(--w-head);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.ai-memory-pill { color: var(--pencil); font-size: var(--t-sm); }
+
+/* ---------- Messages ---------- */
+
+.ai-messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s6);
+  min-width: 0;
+  padding: var(--s1) 0;
+}
+.ai-messages:focus-visible { border-radius: var(--r-control); }
+
+.ai-row {
+  display: flex;
+  min-width: 0;
+  /* keep scrolled-to messages clear of the pinned composer + nav */
+  scroll-margin: var(--s4) 0 180px;
+}
+.ai-row.from-user { justify-content: flex-end; }
+.ai-row.from-buddy { justify-content: flex-start; }
+.ai-avatar { display: none; }
+
+.ai-msg {
+  min-width: 0;
+  font-size: var(--t-md);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.ai-msg p { margin: 0; }
+.ai-msg > * + * { margin-top: var(--s3); }
+
+/* Student: right-aligned pen-wash bubble */
+.ai-row.from-user .ai-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: var(--r-card) var(--r-card) 4px var(--r-card);
+  background: var(--pen-wash);
+  color: var(--ink);
+}
+
+/* Class AI: plain text on paper */
+.ai-row.from-buddy .ai-msg { max-width: 65ch; color: var(--ink); }
+.ai-who {
+  color: var(--pencil);
+  font-size: var(--t-sm);
+  font-weight: var(--w-label);
+  line-height: 1.3;
+}
+.ai-row.from-buddy .ai-msg > .ai-who + * { margin-top: var(--s1); }
+
+/* Refusal ("not in your notes"): calm, quiet sheet, never an error */
+.ai-row.from-buddy .ai-msg.is-refusal {
+  padding: 14px var(--s4);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-control);
+  background: var(--sheet);
+}
+
+/* ---------- Citation: the signature ---------- */
+
+.ai-source {
+  margin: var(--s3) 0 0;
+  padding: 0;
+}
+.ai-quote {
+  margin: 0;
+  font-size: var(--t-md);
+  line-height: 1.75; /* room between lines for the highlighter swipe */
+  color: var(--ink);
+}
+/* Same swipe technique as .hl in notebook.css, in the course color */
+.ai-quote .hl,
+.ai-quote mark {
+  color: inherit;
+  background: linear-gradient(100deg, transparent 0.15em, var(--course, var(--hl-yellow)) 0.25em, var(--course, var(--hl-yellow)) calc(100% - 0.25em), transparent calc(100% - 0.1em));
+  background-size: 100% 78%;
+  background-position: 0 70%;
+  background-repeat: no-repeat;
+  padding: 0 0.3em;
+  margin: 0 -0.1em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  border-radius: 0.15em 0.35em 0.2em 0.3em;
+}
+.ai-source-ref {
+  display: block;
+  margin: var(--s2) 0 0;
+  color: var(--pencil);
+  font-size: var(--t-sm);
+  line-height: 1.4;
+}
+.ai-source-label {
+  color: var(--ink);
+  font-weight: var(--w-label);
+  margin-right: var(--s1);
+}
+
+/* ---------- Suggested prompts: neutral chips ---------- */
+
+.ai-suggest { display: grid; gap: var(--s2); }
+.ai-suggest-title {
+  color: var(--pencil);
+  font-size: var(--t-sm);
+  font-weight: var(--w-label);
+  line-height: 1.3;
+}
+.ai-prompts { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.ai-prompt {
+  max-width: 100%;
+  min-height: 44px;
+  padding: var(--s2) var(--s4);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: var(--wash);
+  color: var(--ink);
+  font-size: var(--t-sm);
+  font-weight: var(--w-label);
+  line-height: 1.3;
+  text-align: left;
+  overflow-wrap: anywhere;
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.ai-prompt:hover { border-color: var(--rule-strong); background: var(--sheet); }
+.ai-prompt:focus-visible { border-radius: var(--r-pill); }
+
+/* ---------- Composer: pinned above the 72px bottom nav ---------- */
+
+.ai-form {
+  position: fixed;
+  z-index: 5;
+  left: 50%;
+  bottom: var(--nav-h, 72px);
+  transform: translateX(-50%);
+  width: min(560px, 100%);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s2);
+  padding: var(--s3) var(--s5);
+  border-top: 1px solid var(--rule);
+  background: var(--paper);
+}
+.ai-input {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  max-height: 120px;
+  margin: 0;
+  /* 9px keeps one line (17px x 1.4) plus borders under 44px, so no scrollbar shows */
+  padding: 9px 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-control);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--t-md);
+  line-height: 1.4;
+  resize: none;
+  overflow-y: auto;
+  transition: border-color 0.15s var(--ease);
+}
+.ai-input::placeholder { color: var(--faint); opacity: 1; }
+.ai-input:focus { outline: none; }
+.ai-input:focus-visible,
+.ai-input:focus { border-color: var(--pen); box-shadow: var(--focus); }
+
+.ai-send {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-control);
+  background: var(--pen);
+  color: var(--sheet);
+  transition: background-color 0.15s var(--ease);
+}
+.ai-send:hover { background: var(--pen-dark); }
+.ai-send span { /* label is for assistive tech only; the button also has aria-label */
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.ai-send svg {
+  width: 20px; height: 20px;
+  fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;
+}
+.ai-send:disabled { background: var(--wash); color: var(--faint); cursor: not-allowed; }
+
+/* Fine print about grounding */
+.ai-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  margin: 0;
+  max-width: 60ch;
+  color: var(--pencil);
+  font-size: var(--t-xs);
+  line-height: 1.45;
+}
+.ai-rule svg {
+  flex: 0 0 auto;
+  width: 16px; height: 16px; margin-top: 1px;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+@media (max-width: 400px) {
+  .ai-hero h1 { font-size: var(--t-xl); }
+  .ai-form { padding-inline: var(--s4); }
+}
+
+/* ---------- Quick recap dialog ---------- */
+
+.recap {
+  width: min(520px, calc(100vw - 32px));
+  height: min(720px, calc(100vh - 32px));
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-card);
+  background: var(--sheet);
+  color: var(--ink);
+  box-shadow: var(--lift);
+}
+@supports (height: 100dvh) { .recap { height: min(720px, calc(100dvh - 32px)); } }
+.recap::backdrop { background: rgba(28, 36, 51, 0.45); }
+
+.recap-stage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "top  top  top"
+    "track track track"
+    "prev dots next"
+    "foot foot foot";
+}
+
+/* Top bar: slide count + close */
+.recap-top {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s3) var(--s3) var(--s2) var(--s5);
+  border-bottom: 1px solid var(--rule);
+}
+.recap-count { color: var(--pencil); font-size: var(--t-sm); font-variant-numeric: tabular-nums; }
+
+/* Icon buttons (close, prev, next): secondary style */
+.recap-round {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-control);
+  background: var(--sheet);
+  color: var(--ink);
+  transition: background-color 0.15s var(--ease);
+}
+.recap-round:hover { background: var(--wash); }
+.recap-round svg {
+  width: 20px; height: 20px;
+  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+}
+#recapClose { border-color: transparent; }
+#recapClose:hover { border-color: var(--rule-strong); }
+
+/* Slides */
+.recap-track {
+  grid-area: track;
+  display: flex;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  cursor: pointer;
+}
+.recap-track::-webkit-scrollbar { display: none; }
+.recap-track:focus-visible { box-shadow: none; outline: 2px solid var(--pen); outline-offset: -4px; border-radius: var(--r-control); }
+
+.recap-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--s4);
+  padding: var(--s6) var(--s6);
+  background: var(--sheet);
+  background-image: none !important; /* ignore any legacy decorative slide art */
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  text-align: left;
+}
+.recap-slide > * { max-width: 34ch; }
+.recap-slide h2 { font-size: var(--t-xl); line-height: 1.2; text-wrap: balance; color: var(--ink); max-width: 22ch; }
+/* <mark> picks up the .hl swipe from notebook.css in the course color */
+.recap-slide h2 mark { color: inherit; }
+
+.recap-kicker,
+.recap-topic {
+  color: var(--pencil);
+  font-size: var(--t-sm);
+  font-weight: var(--w-label);
+  line-height: 1.3;
+}
+.recap-text { margin: 0; font-size: var(--t-lg); line-height: 1.45; color: var(--ink); text-wrap: pretty; }
+
+/* Numbered steps as a ruled list */
+.recap-steps {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  border-top: 1px solid var(--rule);
+}
+.recap-steps li {
+  display: grid;
+  grid-template-columns: 1.6em minmax(0, 1fr);
+  gap: var(--s2);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--t-md);
+  line-height: 1.4;
+  counter-increment: step;
+}
+.recap-steps li::before { content: counter(step) "."; color: var(--pencil); font-weight: var(--w-label); }
+
+.recap-mascot { display: none; }
+
+/* End slide actions */
+.recap-cta { display: grid; gap: var(--s2); width: min(100%, 320px); margin-top: var(--s2); }
+.recap-cta button {
+  min-height: 44px;
+  padding: 0 var(--s5);
+  border-radius: var(--r-control);
+  font-size: var(--t-md);
+  font-weight: var(--w-label);
+  transition: background-color 0.15s var(--ease);
+}
+.recap-cta .go { border: 0; background: var(--pen); color: var(--sheet); }
+.recap-cta .go:hover { background: var(--pen-dark); }
+.recap-cta .alt { border: 1px solid var(--rule-strong); background: var(--sheet); color: var(--ink); }
+.recap-cta .alt:hover { background: var(--wash); }
+.recap-cta .text { border: 0; background: transparent; color: var(--pen); }
+.recap-cta .text:hover { text-decoration: underline; text-underline-offset: 0.18em; }
+
+/* Prev / dots / next row */
+.recap-arrow.prev { grid-area: prev; margin: var(--s2) 0 var(--s2) var(--s4); }
+.recap-arrow.next { grid-area: next; margin: var(--s2) var(--s4) var(--s2) 0; }
+.recap-arrow:disabled { visibility: hidden; }
+.recap-dots {
+  grid-area: dots;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  padding: 0 var(--s2);
+}
+.recap-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-strong); }
+.recap-dots i.on { background: var(--pen); }
+
+/* Footer: what this recap is + Like / Save toggles */
+.recap-foot {
+  grid-area: foot;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s4) var(--s3) var(--s5);
+  border-top: 1px solid var(--rule);
+}
+.recap-avatar { display: none; }
+.recap-who { flex: 1 1 0; min-width: 0; color: var(--pencil); font-size: var(--t-sm); line-height: 1.3; }
+.recap-who b { display: none; }
+
+.recap-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 var(--s3);
+  border: 1px solid transparent;
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--pen);
+  font-size: var(--t-sm);
+  font-weight: var(--w-label);
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.recap-toggle:hover { background: var(--wash); }
+.recap-toggle svg {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+}
+.recap-toggle[aria-pressed="true"] { background: var(--pen-wash); border-color: var(--pen-wash); color: var(--pen-dark); }
+.recap-toggle[aria-pressed="true"] svg { fill: currentColor; }
+
+@media (max-width: 480px) {
+  .recap { width: calc(100vw - 16px); height: calc(100vh - 16px); }
+  @supports (height: 100dvh) { .recap { height: calc(100dvh - 16px); } }
+  .recap-slide { padding: var(--s5); }
+}
+@media (max-height: 600px) {
+  .recap-slide { justify-content: flex-start; gap: var(--s3); padding-block: var(--s4); }
+  .recap-text { font-size: var(--t-md); }
+}
